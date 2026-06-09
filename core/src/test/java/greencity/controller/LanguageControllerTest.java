@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,21 +38,20 @@ class LanguageControllerTest {
     }
 
     @Test
-    void findAllLanguageCodesTest() throws Exception {
-        // Given
+    void findAllLanguageCodes_ValidRequest_ReturnsLanguageCodes() throws Exception {
+
         List<String> mockLanguages = List.of("en", "ua", "fr");
         when(languageService.findAllLanguageCodes()).thenReturn(mockLanguages);
 
-        // When & Then
         mockMvc.perform(get("/language")
-                        .accept(MediaType.APPLICATION_JSON)) // Явно просимо JSON
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3))) // Надійна перевірка розміру масиву
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0]").value("en"))
                 .andExpect(jsonPath("$[1]").value("ua"))
                 .andExpect(jsonPath("$[2]").value("fr"));
 
-        // Verify
         verify(languageService).findAllLanguageCodes();
     }
 }
