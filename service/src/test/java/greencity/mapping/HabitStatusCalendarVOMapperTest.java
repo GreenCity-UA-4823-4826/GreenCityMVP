@@ -6,14 +6,14 @@ import greencity.entity.HabitStatusCalendar;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class HabitStatusCalendarVOMapperTest {
 
     @InjectMocks
@@ -21,16 +21,17 @@ class HabitStatusCalendarVOMapperTest {
 
     @Test
     void convertTest() {
+        LocalDate enrollDate = LocalDate.now();
         HabitStatusCalendar calendar = HabitStatusCalendar.builder()
             .id(1L)
-            .enrollDate(LocalDate.now())
+            .enrollDate(enrollDate)
             .habitAssign(HabitAssign.builder().id(5L).build())
             .build();
 
         HabitStatusCalendarVO result = mapper.convert(calendar);
 
         assertEquals(1L, result.getId());
-        assertEquals(LocalDate.now(), result.getEnrollDate());
+        assertEquals(enrollDate, result.getEnrollDate());
         assertEquals(5L, result.getHabitAssignVO().getId());
     }
 

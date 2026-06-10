@@ -64,10 +64,10 @@ class SearchNewsDtoMapperTest {
 
     @Test
     void convertWithUkrainianLocaleTest() {
-        LocaleContextHolder.setLocale(Locale.of("uk"));
+        LocaleContextHolder.setLocale(Locale.of("ua"));
 
         Language enLang = Language.builder().id(1L).code("en").build();
-        Language uaLang = Language.builder().id(2L).code("uk").build();
+        Language uaLang = Language.builder().id(2L).code("ua").build();
 
         TagTranslation enTag = TagTranslation.builder().name("News").language(enLang).build();
         TagTranslation uaTag = TagTranslation.builder().name("Новини").language(uaLang).build();
