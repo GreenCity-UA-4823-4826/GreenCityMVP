@@ -1,5 +1,6 @@
 package greencity.filters;
 
+import greencity.annotations.RatingCalculationEnum;
 import greencity.entity.RatingStatistics;
 import greencity.entity.RatingStatistics_;
 import greencity.entity.User;
@@ -13,8 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +57,16 @@ public class RatingStatisticsSpecificationTest {
     private Path<String> userMailPath;
 
     @Mock
+    private Path<RatingCalculationEnum> enumPath;
+
+    @Mock
     private Join<RatingStatistics, User> userJoin;
+
+    @Mock
+    private Predicate enumOrPredicate;
+
+    @Mock
+    private Predicate enumEqualPredicate;
 
     @Test
     void toPredicateShouldCreateNumericPredicateForId(){
@@ -192,6 +201,36 @@ public class RatingStatisticsSpecificationTest {
         verify(userJoin).get(User_.email);
         verify(criteriaBuilder).like(userMailPath, "%gmail%");
         verify(criteriaBuilder).and(startPredicate, likePredicate);
+    }
 
+    @Test
+    void toPredicateShouldCreateEnumPredicate(){
+
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("ratingCalculationEnum")
+                .type("enum")
+                .value("ADD_ECO_NEWS")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(criteriaBuilder.disjunction()).thenReturn(enumOrPredicate);
+        when(root.<RatingCalculationEnum>get("ratingCalculationEnum")).thenReturn(enumPath);
+        when(criteriaBuilder.equal(enumPath, RatingCalculationEnum.ADD_ECO_NEWS)).thenReturn(enumEqualPredicate);
+        when(criteriaBuilder.or(enumOrPredicate, enumEqualPredicate)).thenReturn(enumOrPredicate);
+        when(criteriaBuilder.and(startPredicate, enumOrPredicate)).thenReturn(finalPredicate);
+
+        Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(criteriaBuilder).disjunction();
+        verify(root).get("ratingCalculationEnum");
+        verify(criteriaBuilder).equal(enumPath, RatingCalculationEnum.ADD_ECO_NEWS);
+        verify(criteriaBuilder).or(enumOrPredicate, enumEqualPredicate);
+        verify(criteriaBuilder).and(startPredicate, enumOrPredicate);
     }
 }
