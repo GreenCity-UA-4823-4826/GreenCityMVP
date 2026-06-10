@@ -40,9 +40,11 @@ public class RatingStatisticsSpecificationTest {
 
     @Mock
     private Path<Object> pointsChangedPath;
+    @Mock
+    private Path<Object> currentRatingPath;
 
     @Test
-    void toPredicateShouldCreateNumericPredicadeteForId(){
+    void toPredicateShouldCreateNumericPredicateForId(){
         SearchCriteria searchCriteria = SearchCriteria.builder()
                 .key("id")
                 .type("id")
@@ -90,6 +92,32 @@ public class RatingStatisticsSpecificationTest {
         verify(criteriaBuilder).conjunction();
         verify(root).get("pointsChanged");
         verify(criteriaBuilder).equal(pointsChangedPath, 10);
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
+    }
+
+    @Test
+    void toPredicateShouldCreateNumericPredicateForCurrentRating(){
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("rating")
+                .type("currentRating")
+                .value(22)
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(root.get("rating")).thenReturn(currentRatingPath);
+        when(criteriaBuilder.equal(currentRatingPath, 22)).thenReturn(numericPredicate);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
+
+        Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(root).get("rating");
+        verify(criteriaBuilder).equal(currentRatingPath,22);
         verify(criteriaBuilder).and(startPredicate, numericPredicate);
     }
 
