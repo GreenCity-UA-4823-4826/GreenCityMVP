@@ -30,13 +30,16 @@ public class RatingStatisticsSpecificationTest {
     private Predicate startPredicate;
 
     @Mock
-    private Predicate numericPredicade;
+    private Predicate numericPredicate;
 
     @Mock
-    private Predicate finalPredicade;
+    private Predicate finalPredicate;
 
     @Mock
     private Path<Object> idPath;
+
+    @Mock
+    private Path<Object> pointsChangedPath;
 
     @Test
     void toPredicateShouldCreateNumericPredicadeteForId(){
@@ -51,19 +54,43 @@ public class RatingStatisticsSpecificationTest {
 
         when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
         when(root.get("id")).thenReturn(idPath);
-        when(criteriaBuilder.equal(idPath, 10L)).thenReturn(numericPredicade);
-        when(criteriaBuilder.and(startPredicate, numericPredicade)).thenReturn(finalPredicade);
+        when(criteriaBuilder.equal(idPath, 10L)).thenReturn(numericPredicate);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
 
         Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
 
-        assertSame(finalPredicade, result);
+        assertSame(finalPredicate, result);
 
         verify(criteriaBuilder).conjunction();
         verify(root).get("id");
         verify(criteriaBuilder).equal(idPath, 10L);
-        verify(criteriaBuilder).and(startPredicate, numericPredicade);
-
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
     }
 
+    @Test
+    void toPredicateShouldCreateNumericPredicateForPointsChanged(){
+        SearchCriteria searchCriteria = SearchCriteria.builder()
+                .key("pointsChanged")
+                .type("pointsChanged")
+                .value(10)
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(searchCriteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(root.get("pointsChanged")).thenReturn(pointsChangedPath);
+        when(criteriaBuilder.equal(pointsChangedPath, 10)).thenReturn(numericPredicate);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
+
+        Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(root).get("pointsChanged");
+        verify(criteriaBuilder).equal(pointsChangedPath, 10);
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
+    }
 
 }
