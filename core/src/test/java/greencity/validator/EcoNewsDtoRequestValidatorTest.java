@@ -1,25 +1,24 @@
 package greencity.validator;
 
 import greencity.dto.econews.AddEcoNewsDtoRequest;
+import greencity.exception.exceptions.InvalidURLException;
+import greencity.exception.exceptions.WrongCountOfTagsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
 import static greencity.ModelUtils.getAddEcoNewsDtoRequest;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
 class EcoNewsDtoRequestValidatorTest {
-    @InjectMocks
     private EcoNewsDtoRequestValidator validator;
 
     @BeforeEach
-    void setup() {
-        validator= new EcoNewsDtoRequestValidator();
+    void setUp() {
+        validator = new EcoNewsDtoRequestValidator();
     }
 
     @Test
@@ -45,5 +44,40 @@ class EcoNewsDtoRequestValidatorTest {
         assertTrue(validator.isValid(request, null));
     }
 
+    @Test
+    void isValidWithManyTagsThrowsException() {
+        AddEcoNewsDtoRequest request = getAddEcoNewsDtoRequest();
+        request.setTags(List.of("One", "Two", "Three", "Four"));
 
+        assertThrows(WrongCountOfTagsException.class, () -> validator.isValid(request, null));
+    }
+
+    @Test
+    void isValidWithEmptyTagsThrowsException() {
+        AddEcoNewsDtoRequest request = getAddEcoNewsDtoRequest();
+        request.setTags(List.of());
+
+        assertThrows(WrongCountOfTagsException.class, () -> validator.isValid(request, null));
+    }
+
+    @Test
+    void isValidWithInvalidSourceThrowsException() {
+        AddEcoNewsDtoRequest request = getAddEcoNewsDtoRequest();
+        request.setSource("invalid-url");
+
+        assertThrows(InvalidURLException.class, () -> validator.isValid(request, null));
+    }
+
+    @Test
+    void isValidWithMaximumAmountOfTagsReturnsTrue() {
+        AddEcoNewsDtoRequest request = getAddEcoNewsDtoRequest();
+        request.setTags(List.of("One", "Two", "Three"));
+
+        assertTrue(validator.isValid(request, null));
+    }
+
+    @Test
+    void initializeDoesNotThrowException() {
+        assertDoesNotThrow(() -> validator.initialize(null));
+    }
 }
