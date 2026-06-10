@@ -36,6 +36,9 @@ public class RatingStatisticsSpecificationTest {
     private Predicate numericPredicate;
 
     @Mock
+    private Predicate likePredicate;
+
+    @Mock
     private Predicate finalPredicate;
 
     @Mock
@@ -49,6 +52,9 @@ public class RatingStatisticsSpecificationTest {
 
     @Mock
     private Path<Long> userIdPath;
+
+    @Mock
+    private Path<String> userMailPath;
 
     @Mock
     private Join<RatingStatistics, User> userJoin;
@@ -157,5 +163,35 @@ public class RatingStatisticsSpecificationTest {
         verify(userJoin).get(User_.id);
         verify(criteriaBuilder).equal(userIdPath,5);
         verify(criteriaBuilder).and(startPredicate, numericPredicate);
+    }
+
+    @Test
+    void toPredicateShouldCreateLikePredicateForUserMail(){
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("userMail")
+                .type("userMail")
+                .value("gmail")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(root.join(RatingStatistics_.user)).thenReturn(userJoin);
+        when(userJoin.get(User_.email)).thenReturn(userMailPath);
+        when(criteriaBuilder.like(userMailPath, "%gmail%" )).thenReturn(likePredicate);
+        when(criteriaBuilder.and(startPredicate, likePredicate)).thenReturn(finalPredicate);
+
+
+        Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(root).join(RatingStatistics_.user);
+        verify(userJoin).get(User_.email);
+        verify(criteriaBuilder).like(userMailPath, "%gmail%");
+        verify(criteriaBuilder).and(startPredicate, likePredicate);
+
     }
 }
