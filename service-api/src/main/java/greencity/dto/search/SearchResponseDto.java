@@ -10,5 +10,6 @@ import java.util.List;
 @EqualsAndHashCode
 public class SearchResponseDto {
     List<SearchNewsDto> ecoNews;
+
     Long countOfResults;
 }
