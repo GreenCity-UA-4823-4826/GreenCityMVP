@@ -1,6 +1,9 @@
 package greencity.filters;
 
 import greencity.entity.RatingStatistics;
+import greencity.entity.RatingStatistics_;
+import greencity.entity.User;
+import greencity.entity.User_;
 import jakarta.persistence.criteria.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,8 +43,15 @@ public class RatingStatisticsSpecificationTest {
 
     @Mock
     private Path<Object> pointsChangedPath;
+
     @Mock
     private Path<Object> currentRatingPath;
+
+    @Mock
+    private Path<Long> userIdPath;
+
+    @Mock
+    private Join<RatingStatistics, User> userJoin;
 
     @Test
     void toPredicateShouldCreateNumericPredicateForId(){
@@ -121,4 +131,31 @@ public class RatingStatisticsSpecificationTest {
         verify(criteriaBuilder).and(startPredicate, numericPredicate);
     }
 
+    @Test
+    void toPredicateShouldCreateNumericPredicateForUserId(){
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("userId")
+                .type("userId")
+                .value(5)
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(root.join(RatingStatistics_.user)).thenReturn(userJoin);
+        when(userJoin.get(User_.id)).thenReturn(userIdPath);
+        when(criteriaBuilder.equal(userIdPath, 5)).thenReturn(numericPredicate);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
+
+        Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(root).join(RatingStatistics_.user);
+        verify(userJoin).get(User_.id);
+        verify(criteriaBuilder).equal(userIdPath,5);
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
+    }
 }
