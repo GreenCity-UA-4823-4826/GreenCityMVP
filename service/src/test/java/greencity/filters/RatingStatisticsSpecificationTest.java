@@ -77,6 +77,9 @@ public class RatingStatisticsSpecificationTest {
     @Mock
     private Predicate enumEqualPredicate;
 
+    @Mock
+    private Predicate firstAndPredicate;
+
     @Test
     void toPredicateShouldCreateNumericPredicateForId(){
         SearchCriteria searchCriteria = SearchCriteria.builder()
@@ -108,7 +111,7 @@ public class RatingStatisticsSpecificationTest {
         SearchCriteria searchCriteria = SearchCriteria.builder()
                 .key("pointsChanged")
                 .type("pointsChanged")
-                .value(10)
+                .value(10L)
                 .build();
 
         RatingStatisticsSpecification ratingStatisticsSpecification =
@@ -116,7 +119,7 @@ public class RatingStatisticsSpecificationTest {
 
         when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
         when(root.get("pointsChanged")).thenReturn(pointsChangedPath);
-        when(criteriaBuilder.equal(pointsChangedPath, 10)).thenReturn(numericPredicate);
+        when(criteriaBuilder.equal(pointsChangedPath, 10L)).thenReturn(numericPredicate);
         when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
 
         Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
@@ -125,7 +128,7 @@ public class RatingStatisticsSpecificationTest {
 
         verify(criteriaBuilder).conjunction();
         verify(root).get("pointsChanged");
-        verify(criteriaBuilder).equal(pointsChangedPath, 10);
+        verify(criteriaBuilder).equal(pointsChangedPath, 10L);
         verify(criteriaBuilder).and(startPredicate, numericPredicate);
     }
 
@@ -134,7 +137,7 @@ public class RatingStatisticsSpecificationTest {
         SearchCriteria criteria = SearchCriteria.builder()
                 .key("rating")
                 .type("currentRating")
-                .value(22)
+                .value(22L)
                 .build();
 
         RatingStatisticsSpecification ratingStatisticsSpecification =
@@ -142,7 +145,7 @@ public class RatingStatisticsSpecificationTest {
 
         when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
         when(root.get("rating")).thenReturn(currentRatingPath);
-        when(criteriaBuilder.equal(currentRatingPath, 22)).thenReturn(numericPredicate);
+        when(criteriaBuilder.equal(currentRatingPath, 22L)).thenReturn(numericPredicate);
         when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
 
         Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
@@ -151,7 +154,7 @@ public class RatingStatisticsSpecificationTest {
 
         verify(criteriaBuilder).conjunction();
         verify(root).get("rating");
-        verify(criteriaBuilder).equal(currentRatingPath,22);
+        verify(criteriaBuilder).equal(currentRatingPath,22L);
         verify(criteriaBuilder).and(startPredicate, numericPredicate);
     }
 
@@ -160,7 +163,7 @@ public class RatingStatisticsSpecificationTest {
         SearchCriteria criteria = SearchCriteria.builder()
                 .key("userId")
                 .type("userId")
-                .value(5)
+                .value(5L)
                 .build();
 
         RatingStatisticsSpecification ratingStatisticsSpecification =
@@ -169,7 +172,7 @@ public class RatingStatisticsSpecificationTest {
         when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
         when(root.join(RatingStatistics_.user)).thenReturn(userJoin);
         when(userJoin.get(User_.id)).thenReturn(userIdPath);
-        when(criteriaBuilder.equal(userIdPath, 5)).thenReturn(numericPredicate);
+        when(criteriaBuilder.equal(userIdPath, 5L)).thenReturn(numericPredicate);
         when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
 
         Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
@@ -179,7 +182,7 @@ public class RatingStatisticsSpecificationTest {
         verify(criteriaBuilder).conjunction();
         verify(root).join(RatingStatistics_.user);
         verify(userJoin).get(User_.id);
-        verify(criteriaBuilder).equal(userIdPath,5);
+        verify(criteriaBuilder).equal(userIdPath,5L);
         verify(criteriaBuilder).and(startPredicate, numericPredicate);
     }
 
@@ -244,7 +247,7 @@ public class RatingStatisticsSpecificationTest {
     }
 
     @Test
-    void toPredicateShouldCreateDataRangePredicate(){
+    void toPredicateShouldCreateDateRangePredicate(){
         String[] dateRange={"2026-06-16","2026-06-17"};
 
         SearchCriteria criteria = SearchCriteria.builder()
@@ -272,6 +275,160 @@ public class RatingStatisticsSpecificationTest {
         verify(root).<ZonedDateTime>get("dateRange");
         verify(criteriaBuilder).between(dateRangePath, start, end);
         verify(criteriaBuilder).and(startPredicate, dataRangePredicate);
+    }
+
+    @Test
+    void toPredicateShouldCreateEnumPredicateForPartialValue() {
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("ratingCalculationEnum")
+                .type("enum")
+                .value("ADD_ECO")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(criteriaBuilder.disjunction()).thenReturn(enumOrPredicate);
+        when(root.<RatingCalculationEnum>get("ratingCalculationEnum")).thenReturn(enumPath);
+        when(criteriaBuilder.equal(enumPath, RatingCalculationEnum.ADD_ECO_NEWS)).thenReturn(enumEqualPredicate);
+        when(criteriaBuilder.or(enumOrPredicate, enumEqualPredicate)).thenReturn(enumOrPredicate);
+        when(criteriaBuilder.and(startPredicate, enumOrPredicate)).thenReturn(finalPredicate);
+
+        Predicate result = ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(criteriaBuilder).disjunction();
+        verify(root).get("ratingCalculationEnum");
+        verify(criteriaBuilder).equal(enumPath, RatingCalculationEnum.ADD_ECO_NEWS);
+        verify(criteriaBuilder).or(enumOrPredicate, enumEqualPredicate);
+        verify(criteriaBuilder).and(startPredicate, enumOrPredicate);
+    }
+
+    @Test
+    void toPredicateShouldReturnDisjunctionWhenEnumValueDoesNotMatch() {
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("ratingCalculationEnum")
+                .type("enum")
+                .value("unknown_enum_value")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(criteriaBuilder.disjunction()).thenReturn(enumOrPredicate);
+        when(criteriaBuilder.and(startPredicate, enumOrPredicate)).thenReturn(finalPredicate);
+
+        Predicate result = ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(criteriaBuilder).disjunction();
+        verify(criteriaBuilder).and(startPredicate, enumOrPredicate);
+        verify(root, never()).get("ratingCalculationEnum");
+        verify(criteriaBuilder, never()).or(any(Predicate.class), any(Predicate.class));
+    }
+
+    @Test
+    void toPredicateShouldReturnConjunctionForBlankUserId() {
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("userId")
+                .type("userId")
+                .value("")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate, numericPredicate);
+        when(root.join(RatingStatistics_.user)).thenReturn(userJoin);
+        when(userJoin.get(User_.id)).thenReturn(userIdPath);
+        when(criteriaBuilder.equal(userIdPath, "")).thenThrow(NumberFormatException.class);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
+
+        Predicate result = ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder, times(2)).conjunction();
+        verify(root).join(RatingStatistics_.user);
+        verify(userJoin).get(User_.id);
+        verify(criteriaBuilder).equal(userIdPath, "");
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
+    }
+
+    @Test
+    void toPredicateShouldReturnDisjunctionForMalformedUserId() {
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("userId")
+                .type("userId")
+                .value("abc")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(criteriaBuilder.disjunction()).thenReturn(numericPredicate);
+        when(root.join(RatingStatistics_.user)).thenReturn(userJoin);
+        when(userJoin.get(User_.id)).thenReturn(userIdPath);
+        when(criteriaBuilder.equal(userIdPath, "abc")).thenThrow(NumberFormatException.class);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(finalPredicate);
+
+        Predicate result = ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(criteriaBuilder).disjunction();
+        verify(root).join(RatingStatistics_.user);
+        verify(userJoin).get(User_.id);
+        verify(criteriaBuilder).equal(userIdPath, "abc");
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
+    }
+
+    @Test
+    void toPredicateShouldCombineMultipleCriteriaWithAnd() {
+        SearchCriteria idCriteria = SearchCriteria.builder()
+                .key("id")
+                .type("id")
+                .value(10L)
+                .build();
+
+        SearchCriteria userMailCriteria = SearchCriteria.builder()
+                .key("userMail")
+                .type("userMail")
+                .value("gmail")
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(idCriteria, userMailCriteria));
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(root.get("id")).thenReturn(idPath);
+        when(criteriaBuilder.equal(idPath, 10L)).thenReturn(numericPredicate);
+        when(criteriaBuilder.and(startPredicate, numericPredicate)).thenReturn(firstAndPredicate);
+        when(root.join(RatingStatistics_.user)).thenReturn(userJoin);
+        when(userJoin.get(User_.email)).thenReturn(userMailPath);
+        when(criteriaBuilder.like(userMailPath, "%gmail%")).thenReturn(likePredicate);
+        when(criteriaBuilder.and(firstAndPredicate, likePredicate)).thenReturn(finalPredicate);
+
+        Predicate result = ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(root).get("id");
+        verify(criteriaBuilder).equal(idPath, 10L);
+        verify(criteriaBuilder).and(startPredicate, numericPredicate);
+        verify(root).join(RatingStatistics_.user);
+        verify(userJoin).get(User_.email);
+        verify(criteriaBuilder).like(userMailPath, "%gmail%");
+        verify(criteriaBuilder).and(firstAndPredicate, likePredicate);
     }
 
 
