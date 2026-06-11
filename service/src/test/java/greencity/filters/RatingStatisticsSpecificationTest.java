@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -39,6 +42,9 @@ public class RatingStatisticsSpecificationTest {
     private Predicate likePredicate;
 
     @Mock
+    private Predicate dataRangePredicate;
+
+    @Mock
     private Predicate finalPredicate;
 
     @Mock
@@ -52,6 +58,9 @@ public class RatingStatisticsSpecificationTest {
 
     @Mock
     private Path<Long> userIdPath;
+
+    @Mock
+    private Path<ZonedDateTime> dateRangePath;
 
     @Mock
     private Path<String> userMailPath;
@@ -233,4 +242,37 @@ public class RatingStatisticsSpecificationTest {
         verify(criteriaBuilder).or(enumOrPredicate, enumEqualPredicate);
         verify(criteriaBuilder).and(startPredicate, enumOrPredicate);
     }
+
+    @Test
+    void toPredicateShouldCreateDataRangePredicate(){
+        String[] dateRange={"2026-06-16","2026-06-17"};
+
+        SearchCriteria criteria = SearchCriteria.builder()
+                .key("dateRange")
+                .type("dateRange")
+                .value(dateRange)
+                .build();
+
+        RatingStatisticsSpecification ratingStatisticsSpecification =
+                new RatingStatisticsSpecification(List.of(criteria));
+
+        ZonedDateTime start = LocalDate.parse(dateRange[0]).atStartOfDay(ZoneOffset.UTC);
+        ZonedDateTime end = LocalDate.parse(dateRange[1]).atStartOfDay(ZoneOffset.UTC);
+
+        when(criteriaBuilder.conjunction()).thenReturn(startPredicate);
+        when(root.<ZonedDateTime>get("dateRange")).thenReturn(dateRangePath);
+        when(criteriaBuilder.between(dateRangePath, start, end)).thenReturn(dataRangePredicate);
+        when(criteriaBuilder.and(startPredicate, dataRangePredicate)).thenReturn(finalPredicate);
+
+        Predicate result= ratingStatisticsSpecification.toPredicate(root, criteriaQuery, criteriaBuilder);
+
+        assertSame(finalPredicate, result);
+
+        verify(criteriaBuilder).conjunction();
+        verify(root).<ZonedDateTime>get("dateRange");
+        verify(criteriaBuilder).between(dateRangePath, start, end);
+        verify(criteriaBuilder).and(startPredicate, dataRangePredicate);
+    }
+
+
 }
