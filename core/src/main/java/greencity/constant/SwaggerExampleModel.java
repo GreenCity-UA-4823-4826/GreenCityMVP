@@ -40,14 +40,23 @@ public final class SwaggerExampleModel {
             + "}\n"
             + AFTER_EXAMPLE;
 
+    private static final String ADD_ECO_NEWS_EXAMPLE =
+            "  \"tags\": [\n"
+                    + "  \"string\"\n"
+                    + "  ],\n"
+                    + "  \"text\": \"string\",\n"
+                    + "  \"title\": \"string\",\n"
+                    + "  \"source\": \"string\"\n";
+
     public static final String ADD_ECO_NEWS_REQUEST =
         "Add Eco News Request\n"
             + IMAGE_DESCRIPTION
             + BEFORE_EXAMPLE
             + "{\n"
-            + EXAMPLE
+            + ADD_ECO_NEWS_EXAMPLE
             + "}\n"
             + AFTER_EXAMPLE;
+
     public static final String UPDATE_ECO_NEWS =
         "Update Eco News\n"
             + IMAGE_DESCRIPTION
@@ -57,6 +66,7 @@ public final class SwaggerExampleModel {
             + EXAMPLE
             + "}\n"
             + AFTER_EXAMPLE;
+
     public static final String ADD_EVENT = BEFORE_EXAMPLE
         + "{\n"
         + "\t\"title\":\"string\",\n"
