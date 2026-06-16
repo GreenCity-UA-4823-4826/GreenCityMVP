@@ -33,6 +33,15 @@ public final class SwaggerExampleModel {
             + "     {\"content\": \"string\",\n"
             + "     \"languageCode\": \"string\"}\n";
 
+    public static final String USER_PROFILE_PICTURE_DTO =
+        "User Profile Picture\n"
+            + BEFORE_EXAMPLE
+            + "{\n"
+            + "  \"id\": 0,\n"
+            + "  \"profilePicturePath\": \"string\"\n"
+            + "}\n"
+            + AFTER_EXAMPLE;
+
     public static final String ADD_ECO_NEWS_REQUEST =
         "Add Eco News Request\n"
             + IMAGE_DESCRIPTION
