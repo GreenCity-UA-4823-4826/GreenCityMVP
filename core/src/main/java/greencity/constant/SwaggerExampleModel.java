@@ -3,16 +3,21 @@ package greencity.constant;
 public final class SwaggerExampleModel {
     private static final String IMAGE_DESCRIPTION = "pass image as base64 or upload image\n";
 
-    private static final String BEFORE_EXAMPLE = "<div>\n"
-        + "\t<ul class=\"tab\">\n"
-        + "\t\t<li class=\"tabitem active\">\n"
-        + "\t\t\t<a class=\"tablinks\" data-name=\"example\">Example Value</a>\n"
-        + "\t\t</li>\n"
-        + "\t\t<li class=\"tabitem\">\n"
-        + "\t\t\t<a class=\"tablinks\" data-name=\"model\">Model</a>\n"
-        + "\t\t</li>\n"
-        + "\t</ul>\n"
-        + "\t<pre>\n";
+    private static final String BEFORE_EXAMPLE = """
+        <div>
+        \t<ul class="tab">
+        \t\t<li class="tabitem active">
+        \t\t\t<a class="tablinks" data-name="example">Example Value</a>
+        \t\t</li>
+        \t\t<li class="tabitem">
+        \t\t\t<a class="tablinks" data-name="model">Model</a>
+        \t\t</li>
+        \t</ul>
+        \t<pre>
+        """;
+
+    private static final String AFTER_EXAMPLE = "\t</pre>\n"
+        + "</div>";
 
     private static final String EXAMPLE =
         "  \"image\": \"string\",\n"
@@ -27,9 +32,6 @@ public final class SwaggerExampleModel {
             + "  \"textTranslation\":\n"
             + "     {\"content\": \"string\",\n"
             + "     \"languageCode\": \"string\"}\n";
-
-    private static final String AFTER_EXAMPLE = "\t</pre>\n"
-        + "</div>";
 
     public static final String USER_PROFILE_PICTURE_DTO =
         "User Profile Picture\n"
@@ -48,15 +50,23 @@ public final class SwaggerExampleModel {
             + EXAMPLE
             + "}\n"
             + AFTER_EXAMPLE;
+
     public static final String UPDATE_ECO_NEWS =
         "Update Eco News\n"
             + IMAGE_DESCRIPTION
             + BEFORE_EXAMPLE
             + "{\n"
-            + "  \"id\": 0,\n"
-            + EXAMPLE
+            + "  \"id\": \"string\",\n"
+            + "  \"tags\": [\n"
+            + "    \"string\"\n"
+            + "  ],\n"
+            + "  \"content\": \"string\",\n"
+            + "  \"title\": \"string\",\n"
+            + "  \"source\": \"string\",\n"
+            + "  \"text\": \"string\"\n"
             + "}\n"
             + AFTER_EXAMPLE;
+
     public static final String ADD_EVENT = BEFORE_EXAMPLE
         + "{\n"
         + "\t\"title\":\"string\",\n"
