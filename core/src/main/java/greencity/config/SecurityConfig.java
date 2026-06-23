@@ -205,6 +205,7 @@ public class SecurityConfig {
                                 "/econews/comments/{econewsId}",
                                 "/econews/comments/like",
                                 CUSTOM_SHOPPING_LIST_ITEMS,
+                                "/email/changePlaceStatus",
                                 "/files/image",
                                 "/files/convert",
                                 HABIT_ASSIGN_ID,
