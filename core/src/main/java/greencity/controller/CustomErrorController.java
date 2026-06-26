@@ -20,9 +20,8 @@ public class CustomErrorController implements ErrorController {
 
         if (statusCode == null) {
             return ResponseEntity.ok(Map.of(
-                    "status", HttpStatus.OK.value(),
-                    "error", HttpStatus.OK.getReasonPhrase()
-            ));
+                "status", HttpStatus.OK.value(),
+                "error", HttpStatus.OK.getReasonPhrase()));
         }
 
         int rawStatus;
@@ -39,8 +38,7 @@ public class CustomErrorController implements ErrorController {
         }
 
         return ResponseEntity.status(status).body(Map.of(
-                "status", status.value(),
-                "error", status.getReasonPhrase()
-        ));
+            "status", status.value(),
+            "error", status.getReasonPhrase()));
     }
 }
