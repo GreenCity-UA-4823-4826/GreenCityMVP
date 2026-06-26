@@ -159,6 +159,27 @@ class CustomShoppingListItemControllerTest {
     }
 
     @Test
+    void saveUserCustomShoppingListItems_MultipleItems_RequestIsMappedCorrectly() throws Exception {
+        Long userId = 1L;
+        Long habitAssignId = 10L;
+        BulkSaveCustomShoppingListItemDto requestDto = new BulkSaveCustomShoppingListItemDto(List.of(
+                CustomShoppingListItemSaveRequestDto.builder().text("Item 1").build(),
+                CustomShoppingListItemSaveRequestDto.builder().text("Item 2").build()));
+        when(customShoppingListItemService.save(any(BulkSaveCustomShoppingListItemDto.class), eq(userId), eq(habitAssignId)))
+                .thenReturn(List.of(ModelUtils.getCustomShoppingListItemResponseDto(), ModelUtils.getCustomShoppingListItemResponseDto()));
+        mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", userId, habitAssignId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", hasSize(2)));
+        ArgumentCaptor<BulkSaveCustomShoppingListItemDto> requestCaptor = ArgumentCaptor.forClass(BulkSaveCustomShoppingListItemDto.class);
+        verify(customShoppingListItemService).save(requestCaptor.capture(), eq(userId), eq(habitAssignId));
+        assertEquals(2, requestCaptor.getValue().getCustomShoppingListItemSaveRequestDtoList().size());
+        verifyNoMoreInteractions(customShoppingListItemService);
+    }
+
+    @Test
     void saveUserCustomShoppingListItems_MissingRequestBody_ReturnsBadRequest() throws Exception {
         Long userId = 1L;
         Long habitAssignId = 10L;
