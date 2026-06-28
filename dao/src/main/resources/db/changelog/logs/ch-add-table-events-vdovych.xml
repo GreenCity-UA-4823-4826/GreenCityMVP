@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="vdovych-1" author="vdovych">
+        <createTable tableName="events">
+            <column name="id" autoIncrement="true" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="title" type="varchar(70)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="organizer_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="visibility" type="varchar(20)" defaultValue="OPEN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="varchar(255)"/>
+            <column name="latitude" type="DOUBLE"/>
+            <column name="longitude" type="DOUBLE"/>
+            <column name="online_link" type="varchar(255)"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="vdovych-2" author="vdovych">
+        <createTable tableName="event_dates">
+            <column name="id" autoIncrement="true" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="TIME"/>
+            <column name="end_time" type="TIME"/>
+            <column name="all_day" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="vdovych-3" author="vdovych">
+        <createTable tableName="event_images">
+            <column name="id" autoIncrement="true" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="main_image" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="vdovych-4" author="vdovych">
+        <createTable tableName="event_types">
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="vdovych-5" author="vdovych">
+        <createTable tableName="event_initiative_types">
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="initiative_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="vdovych-6" author="vdovych">
+        <addForeignKeyConstraint baseColumnNames="organizer_id" baseTableName="events"
+                                 constraintName="FK_events_organizer"
+                                 onDelete="RESTRICT" onUpdate="CASCADE" referencedColumnNames="id"
+                                 referencedTableName="users"/>
+
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="event_dates"
+                                 constraintName="FK_event_dates_event"
+                                 onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id"
+                                 referencedTableName="events"/>
+
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="event_images"
+                                 constraintName="FK_event_images_event"
+                                 onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id"
+                                 referencedTableName="events"/>
+
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="event_types"
+                                 constraintName="FK_event_types_event"
+                                 onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id"
+                                 referencedTableName="events"/>
+
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="event_initiative_types"
+                                 constraintName="FK_event_initiative_types_event"
+                                 onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id"
+                                 referencedTableName="events"/>
+    </changeSet>
+
+</databaseChangeLog>
