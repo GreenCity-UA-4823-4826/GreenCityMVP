@@ -4,6 +4,7 @@ import greencity.enums.event.EventType;
 import greencity.enums.event.EventVisibility;
 import greencity.enums.event.InitiativeType;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@Builder
 public class EventResponseDto {
 
     private Long id;
