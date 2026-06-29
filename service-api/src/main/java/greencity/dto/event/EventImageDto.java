@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EventImageDto {
-
     private String imageUrl;
 
     private boolean mainImage;

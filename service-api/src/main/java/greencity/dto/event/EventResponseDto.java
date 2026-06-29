@@ -3,11 +3,9 @@ package greencity.dto.event;
 import greencity.enums.event.EventType;
 import greencity.enums.event.EventVisibility;
 import greencity.enums.event.InitiativeType;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +14,6 @@ import java.util.Set;
 @Setter
 @Builder
 public class EventResponseDto {
-
     private Long id;
 
     private String title;
