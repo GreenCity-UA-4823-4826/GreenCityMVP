@@ -14,6 +14,7 @@ import greencity.mapping.event.EventCreateRequestDtoMapper;
 import greencity.mapping.event.EventResponseDtoMapper;
 import greencity.repository.EventRepo;
 import greencity.repository.UserRepo;
+import greencity.validator.ImageSizeValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,8 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private static final int MAX_IMAGES = 5;
+    private static final List<String> VALID_IMAGE_TYPES =
+            List.of("image/jpeg", "image/png", "image/jpg");
 
     private final EventRepo eventRepo;
     private final UserRepo userRepo;
@@ -76,7 +79,10 @@ public class EventServiceImpl implements EventService {
         }
 
         for (int i = 0; i < images.length; i++) {
-            String uploadedUrl = fileService.upload(images[i]);
+            MultipartFile image = images[i];
+            validateImage(image);
+
+            String uploadedUrl = fileService.upload(image);
 
             EventImage eventImage = new EventImage();
             eventImage.setImageUrl(uploadedUrl);
@@ -86,5 +92,14 @@ public class EventServiceImpl implements EventService {
         }
 
         return eventImages;
+    }
+
+    private void validateImage(MultipartFile image) {
+        if (image.getContentType() == null || !VALID_IMAGE_TYPES.contains(image.getContentType())) {
+            throw new BadRequestException(ErrorMessage.IMAGE_EXISTS);
+        }
+        if (!new ImageSizeValidator().isValid(image, null)) {
+            throw new BadRequestException(ErrorMessage.IMAGE_SIZE_EXCEEDED);
+        }
     }
 }
