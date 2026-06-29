@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class EventResponseDtoMapper extends AbstractConverter<Event, EventResponseDto> {
 
     @Override
-    protected EventResponseDto convert(Event event) {
+    public EventResponseDto convert(Event event) {
         return EventResponseDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
