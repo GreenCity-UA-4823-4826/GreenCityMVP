@@ -21,11 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -64,5 +60,27 @@ public class EventController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(eventService.createEvent(eventCreateRequestDto, images, mainImageIndex, user));
+    }
+
+    /**
+     * Method for deleting an Event by id.
+     * Only the event organizer or admin can perform this action.
+     *
+     * @param eventId - id of the event to delete.
+     * @param userVO  - current authorized user performing the deletion.
+     * @return {@link ResponseEntity} with status 200.
+     */
+    @Operation(summary = "Delete event by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(responseCode = "403", description = HttpStatuses.FORBIDDEN),
+            @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
+    })
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping (value = "/{eventId}")
+    public ResponseEntity<Object> deleteEvent(@PathVariable Long eventId, @CurrentUser UserVO userVO) {
+        eventService.deleteEvent(eventId, userVO);
+        return ResponseEntity.ok().build();
     }
 }
