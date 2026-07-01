@@ -114,5 +114,18 @@
                                  onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id"
                                  referencedTableName="events"/>
     </changeSet>
+    <changeSet id="vdovych-7" author="vdovych">
+        <addPrimaryKey
+                tableName="event_types"
+                columnNames="event_id, event_type"
+                constraintName="PK_event_types"/>
+    </changeSet>
+
+    <changeSet id="vdovych-8" author="vdovych">
+        <addPrimaryKey
+                tableName="event_initiative_types"
+                columnNames="event_id, initiative_type"
+                constraintName="PK_event_initiative_types"/>
+    </changeSet>
 
 </databaseChangeLog>
