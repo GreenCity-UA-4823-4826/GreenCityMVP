@@ -16,6 +16,7 @@ import greencity.repository.EventRepo;
 import greencity.repository.UserRepo;
 import greencity.validator.ImageSizeValidator;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ public class EventServiceImpl implements EventService {
     private final EventResponseDtoMapper eventResponseDtoMapper;
 
     @Override
+    @Transactional
     public EventResponseDto createEvent(EventCreateRequestDto eventCreateRequestDto,
                                         MultipartFile[] images,
                                         Integer mainImageIndex,
@@ -86,7 +88,8 @@ public class EventServiceImpl implements EventService {
 
             EventImage eventImage = new EventImage();
             eventImage.setImageUrl(uploadedUrl);
-            eventImage.setMainImage(mainImageIndex != null && mainImageIndex == i);
+            boolean isMain = mainImageIndex != null ? mainImageIndex == i : i == 0;
+            eventImage.setMainImage(isMain);
 
             eventImages.add(eventImage);
         }
@@ -96,7 +99,7 @@ public class EventServiceImpl implements EventService {
 
     private void validateImage(MultipartFile image) {
         if (image.getContentType() == null || !VALID_IMAGE_TYPES.contains(image.getContentType())) {
-            throw new BadRequestException(ErrorMessage.IMAGE_EXISTS);
+            throw new BadRequestException(ErrorMessage.INVALID_IMAGE_TYPE);
         }
         if (!new ImageSizeValidator().isValid(image, null)) {
             throw new BadRequestException(ErrorMessage.IMAGE_SIZE_EXCEEDED);
