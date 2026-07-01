@@ -1,9 +1,12 @@
 package greencity.controller;
 
 import greencity.ModelUtils;
+import greencity.constant.ErrorMessage;
 import greencity.converters.UserArgumentResolver;
 import greencity.dto.event.EventResponseDto;
 import greencity.dto.user.UserVO;
+import greencity.exception.exceptions.NotFoundException;
+import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.exception.handler.CustomExceptionHandler;
 import greencity.service.EventService;
 import greencity.service.UserService;
@@ -19,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
@@ -30,14 +34,15 @@ import java.security.Principal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -73,6 +78,13 @@ class EventControllerTest {
                         new UserArgumentResolver(userService, modelMapper))
                 .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
                 .build();
+
+        when(errorAttributes.getErrorAttributes(any(), any(ErrorAttributeOptions.class)))
+                .thenReturn(new HashMap<>(Map.of(
+                        "path", "/events",
+                        "message", "error",
+                        "timestamp", java.time.LocalDateTime.now(),
+                        "trace", "")));
     }
 
     @Test
@@ -168,5 +180,46 @@ class EventControllerTest {
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(eventService);
+    }
+
+    @Test
+    void deleteEvent_validRequest_returnsOk() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        mockMvc.perform(delete(EVENTS_LINK + "/{eventId}", 1L)
+                        .principal(principal)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(eventService, times(1)).deleteEvent(1L, userVO);
+    }
+
+    @Test
+    void deleteEvent_eventNotFound_returnsNotFound() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        doThrow(new NotFoundException(ErrorMessage.EVENT_NOT_FOUND_BY_ID + 999L))
+                .when(eventService).deleteEvent(999L, userVO);
+
+        mockMvc.perform(delete(EVENTS_LINK + "/{eventId}", 999L)
+                        .principal(principal)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteEvent_noPermission_returnsForbidden() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        doThrow(new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION))
+                .when(eventService).deleteEvent(1L, userVO);
+
+        mockMvc.perform(delete(EVENTS_LINK + "/{eventId}", 1L)
+                        .principal(principal)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

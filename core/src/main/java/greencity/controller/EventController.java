@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/events")
 public class EventController {
 
     private final EventService eventService;
@@ -48,7 +49,7 @@ public class EventController {
             @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(value = "/events", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<EventResponseDto> createEvent(
             @Parameter(description = "Event data")
             @Valid @RequestPart EventCreateRequestDto eventCreateRequestDto,
