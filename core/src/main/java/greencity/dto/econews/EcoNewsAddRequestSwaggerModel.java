@@ -11,7 +11,7 @@ import java.util.List;
  * NOT used for actual request binding/validation.
  */
 @Data
-@Schema(name = "AddEcoNewsDtoRequest")
+@Schema(name = "EcoNewsAddRequestSwaggerModel")
 public class EcoNewsAddRequestSwaggerModel {
     private List<String> tags;
     private String text;
