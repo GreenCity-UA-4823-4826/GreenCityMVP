@@ -80,7 +80,8 @@ public class EventController {
     })
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping (value = "/{eventId}")
-    public ResponseEntity<Object> deleteEvent(@PathVariable Long eventId, @CurrentUser UserVO userVO) {
+    public ResponseEntity<Object> deleteEvent(@PathVariable Long eventId,
+                                              @Parameter(hidden = true) @CurrentUser UserVO userVO) {
         eventService.deleteEvent(eventId, userVO);
         return ResponseEntity.ok().build();
     }
