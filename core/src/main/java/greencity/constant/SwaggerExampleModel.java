@@ -44,9 +44,13 @@ public final class SwaggerExampleModel {
         "  \"tags\": [\n"
             + "    \"string\"\n"
             + "  ],\n"
-                    + "  \"text\": \"string\",\n"
-                    + "  \"title\": \"string\",\n"
-                    + "  \"source\": \"string\"\n";
+    private static final String ADD_ECO_NEWS_EXAMPLE =
+        "  \"tags\": [\n"
+            + "    \"string\"\n"
+            + "  ],\n"
+            + "  \"text\": \"string\",\n"
+            + "  \"title\": \"string\",\n"
+            + "  \"source\": \"string\"\n";
 
     public static final String ADD_ECO_NEWS_REQUEST =
         "Add Eco News Request\n"
