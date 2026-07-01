@@ -136,6 +136,7 @@ public final class ErrorMessage {
     public static final String TOO_MANY_EVENT_IMAGES = "Maximum 5 images allowed per event";
     public static final String INVALID_MAIN_IMAGE_INDEX = "Invalid main image index";
     public static final String IMAGE_SIZE_EXCEEDED = "Incorrect image size. Maximum allowed size is 10 MB";
+    public static final String INVALID_IMAGE_TYPE = "Invalid image type. Only JPEG and PNG are allowed.";
 
     private ErrorMessage() {
     }
