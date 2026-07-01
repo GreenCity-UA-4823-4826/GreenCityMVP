@@ -24,4 +24,13 @@ public interface EventService {
         MultipartFile[] images,
         Integer mainImageIndex,
         UserVO userVO);
+
+    /**
+     * Method for deleting an Event by id.
+     * Only the event organizer or admin can delete it.
+     *
+     * @param eventId - id of the event to delete.
+     * @param userVO  - current authorized user performing the deletion.
+     */
+    void deleteEvent(Long eventId, UserVO userVO);
 }
