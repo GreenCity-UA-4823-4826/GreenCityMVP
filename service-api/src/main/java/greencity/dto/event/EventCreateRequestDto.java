@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.URL;
+
 import java.util.List;
 import java.util.Set;
 
@@ -42,5 +44,6 @@ public class EventCreateRequestDto {
     private Double latitude;
     private Double longitude;
 
+    @URL(message = "Online link must be a valid URL")
     private String onlineLink;
 }
