@@ -74,8 +74,8 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException(
                         ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
 
-        if (currentUser.getRole() != Role.ROLE_ADMIN
-                && !currentUser.getId().equals(event.getOrganizer().getId())) {
+        if (userVO.getRole() != Role.ROLE_ADMIN
+                && !userVO.getId().equals(event.getOrganizer().getId())) {
             throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
         }
 
