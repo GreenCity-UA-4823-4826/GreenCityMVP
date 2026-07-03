@@ -1,14 +1,15 @@
 package greencity.repository;
 
 import greencity.entity.event.EventAttendance;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface EventAttendanceRepo extends JpaRepository<EventAttendance, Long> {
-    Page<EventAttendance> findByUserId(Long userId, Pageable pageable);
+    List<EventAttendance> findByUserId(Long userId);
 
     Optional<EventAttendance> findByEventIdAndUserId(Long eventId, Long userId);
 }
