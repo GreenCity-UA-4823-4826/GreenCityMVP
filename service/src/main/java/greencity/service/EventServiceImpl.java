@@ -108,6 +108,7 @@ public class EventServiceImpl implements EventService {
                 .forEach(result::add);
 
         joinedEvents.stream()
+                .filter(attendance -> !attendance.getEvent().getOrganizer().getId().equals(user.getId()))
                 .map(myEventResponseDtoMapper::fromAttendance)
                 .forEach(result::add);
 
@@ -122,7 +123,7 @@ public class EventServiceImpl implements EventService {
                 (int) Math.ceil((double) result.size() / pageable.getPageSize())
         );
     }
-    
+
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
         List<EventImage> eventImages = new ArrayList<>();
 
