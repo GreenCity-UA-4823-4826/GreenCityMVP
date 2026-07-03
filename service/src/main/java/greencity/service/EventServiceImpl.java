@@ -24,8 +24,6 @@ import greencity.repository.UserRepo;
 import greencity.validator.ImageSizeValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +60,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventCreateRequestDtoMapper.toEntity(eventCreateRequestDto, organizer);
 
         List<EventImage> eventImages = buildEventImages(images, mainImageIndex);
+
         eventImages.forEach(image -> image.setEvent(event));
         event.setImages(eventImages);
 
@@ -112,8 +111,9 @@ public class EventServiceImpl implements EventService {
                 .map(myEventResponseDtoMapper::fromAttendance)
                 .forEach(result::add);
 
-        int start = (int) pageable.getOffset();
+        int start = Math.min((int) pageable.getOffset(), result.size());
         int end = Math.min(start + pageable.getPageSize(), result.size());
+
         List<MyEventResponseDto> pageContent = result.subList(start, end);
 
         return new PageableDto<>(
