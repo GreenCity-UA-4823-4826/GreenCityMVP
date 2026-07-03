@@ -2,6 +2,7 @@ package greencity.service;
 
 import greencity.constant.AppConstant;
 import greencity.constant.ErrorMessage;
+import greencity.dto.PageableDto;
 import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
 import greencity.dto.event.MyEventResponseDto;
@@ -92,7 +93,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Page<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable) {
+    public PageableDto<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable) {
         User user = userRepo.findById(userVO.getId())
                 .orElseThrow(() -> new NotFoundException(
                         ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
@@ -112,10 +113,16 @@ public class EventServiceImpl implements EventService {
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), result.size());
+        List<MyEventResponseDto> pageContent = result.subList(start, end);
 
-        return new PageImpl<>(result.subList(start, end), pageable, result.size());
+        return new PageableDto<>(
+                pageContent,
+                result.size(),
+                pageable.getPageNumber(),
+                (int) Math.ceil((double) result.size() / pageable.getPageSize())
+        );
     }
-
+    
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
         List<EventImage> eventImages = new ArrayList<>();
 

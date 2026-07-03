@@ -2,6 +2,7 @@ package greencity.controller;
 
 import greencity.annotations.CurrentUser;
 import greencity.constant.HttpStatuses;
+import greencity.dto.PageableDto;
 import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
 import greencity.dto.event.MyEventResponseDto;
@@ -15,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -77,7 +77,7 @@ public class EventController {
             @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
     })
     @GetMapping("/myEvents")
-    public ResponseEntity<Page<MyEventResponseDto>> getMyEvents(
+    public ResponseEntity<PageableDto<MyEventResponseDto>> getMyEvents(
             @Parameter(hidden = true) @CurrentUser UserVO userVO,
             Pageable pageable) {
 

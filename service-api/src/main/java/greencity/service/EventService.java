@@ -1,10 +1,10 @@
 package greencity.service;
 
+import greencity.dto.PageableDto;
 import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
 import greencity.dto.event.MyEventResponseDto;
 import greencity.dto.user.UserVO;
-import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.data.domain.Pageable;
@@ -45,5 +45,5 @@ public interface EventService {
      * @param pageable - pagination parameters.
      * @return page of {@link MyEventResponseDto}.
      */
-    Page<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable);
+    PageableDto<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable);
 }
