@@ -6,6 +6,7 @@ import greencity.entity.event.Event;
 import greencity.entity.event.EventAttendance;
 import greencity.entity.event.EventDate;
 import greencity.entity.event.EventImage;
+import greencity.enums.event.EventAttendanceStatus;
 import greencity.enums.event.EventStatus;
 import org.springframework.stereotype.Component;
 
@@ -17,25 +18,15 @@ import java.util.stream.Collectors;
 @Component
 public class MyEventResponseDtoMapper {
 
-    // конвертує організовану подію → DTO
     public MyEventResponseDto fromEvent(Event event) {
-        return MyEventResponseDto.builder()
-                .id(event.getId())
-                .title(event.getTitle())
-                .organizerName(event.getOrganizer().getName())
-                .eventTypes(event.getEventTypes())
-                .mainImageUrl(resolveMainImageUrl(event.getImages()))
-                .visibility(event.getVisibility())
-                .location(event.getLocation())
-                .onlineLink(event.getOnlineLink())
-                .dates(mapDates(event.getDates()))
-                .eventStatus(resolveEventStatus(event.getDates()))
-                .attendanceStatus(null)
-                .build();
+        return buildDto(event, null);
     }
 
     public MyEventResponseDto fromAttendance(EventAttendance attendance) {
-        Event event = attendance.getEvent();
+        return buildDto(attendance.getEvent(), attendance.getStatus());
+    }
+
+    private MyEventResponseDto buildDto(Event event, EventAttendanceStatus attendanceStatus) {
         return MyEventResponseDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -47,7 +38,7 @@ public class MyEventResponseDtoMapper {
                 .onlineLink(event.getOnlineLink())
                 .dates(mapDates(event.getDates()))
                 .eventStatus(resolveEventStatus(event.getDates()))
-                .attendanceStatus(attendance.getStatus())
+                .attendanceStatus(attendanceStatus)
                 .build();
     }
 
@@ -70,6 +61,9 @@ public class MyEventResponseDtoMapper {
                     LocalTime end = eventDate.getEndTime();
                     if (!currentTime.isBefore(start) && !currentTime.isAfter(end)) {
                         return EventStatus.IN_LIVE;
+                    }
+                    if (currentTime.isBefore(start)) {
+                        hasUpcoming = true;
                     }
                 }
             }
