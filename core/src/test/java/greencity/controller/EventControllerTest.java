@@ -231,7 +231,12 @@ class EventControllerTest {
         mockMvc.perform(get(EVENTS_LINK + "/myEvents")
                         .principal(principal)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").isArray())
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.currentPage").value(0))
+                .andExpect(jsonPath("$.totalPages").value(0));
 
         verify(eventService, times(1)).getMyEvents(any(), any());
     }
