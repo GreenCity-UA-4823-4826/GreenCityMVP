@@ -8,8 +8,10 @@ import greencity.dto.user.UserVO;
 import greencity.entity.User;
 import greencity.entity.event.Event;
 import greencity.entity.event.EventImage;
+import greencity.enums.Role;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
+import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.mapping.event.EventCreateRequestDtoMapper;
 import greencity.mapping.event.EventResponseDtoMapper;
 import greencity.repository.EventRepo;
@@ -59,6 +61,31 @@ public class EventServiceImpl implements EventService {
         Event savedEvent = eventRepo.save(event);
 
         return eventResponseDtoMapper.convert(savedEvent);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEvent(Long eventId, UserVO userVO) {
+        Event event = eventRepo.findById(eventId)
+            .orElseThrow(() -> new NotFoundException(
+                    ErrorMessage.EVENT_NOT_FOUND_BY_ID + eventId));
+
+        User currentUser = userRepo.findById(userVO.getId())
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
+
+        if (userVO.getRole() != Role.ROLE_ADMIN
+                && !userVO.getId().equals(event.getOrganizer().getId())) {
+            throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
+        }
+
+        for (EventImage image : event.getImages()) {
+            if (!image.getImageUrl().equals(AppConstant.DEFAULT_EVENT_IMAGE)) {
+                fileService.delete(image.getImageUrl());
+            }
+        }
+
+        eventRepo.delete(event);
     }
 
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
