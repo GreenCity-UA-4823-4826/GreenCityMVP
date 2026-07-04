@@ -3,6 +3,7 @@ package greencity.controller;
 import greencity.ModelUtils;
 import greencity.constant.ErrorMessage;
 import greencity.converters.UserArgumentResolver;
+import greencity.dto.PageableDto;
 import greencity.dto.event.EventResponseDto;
 import greencity.dto.user.UserVO;
 import greencity.exception.exceptions.NotFoundException;
@@ -10,9 +11,7 @@ import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.exception.handler.CustomExceptionHandler;
 import greencity.service.EventService;
 import greencity.service.UserService;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,20 +28,19 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import java.security.Principal;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -221,5 +219,39 @@ class EventControllerTest {
                         .principal(principal)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getMyEvents_validRequest_returnsOkWithPage() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+        when(eventService.getMyEvents(any(), any()))
+                .thenReturn(new PageableDto<>(List.of(), 0, 0, 0));
+
+        mockMvc.perform(get(EVENTS_LINK + "/myEvents")
+                        .principal(principal)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").isArray())
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.currentPage").value(0))
+                .andExpect(jsonPath("$.totalPages").value(0));
+
+        verify(eventService, times(1)).getMyEvents(any(), any());
+    }
+
+    @Test
+    void getMyEvents_userNotFound_returnsNotFound() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        when(eventService.getMyEvents(any(), any()))
+                .thenThrow(new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
+
+        mockMvc.perform(get(EVENTS_LINK + "/myEvents")
+                        .principal(principal)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

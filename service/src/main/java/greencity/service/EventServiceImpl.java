@@ -2,11 +2,14 @@ package greencity.service;
 
 import greencity.constant.AppConstant;
 import greencity.constant.ErrorMessage;
+import greencity.dto.PageableDto;
 import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
+import greencity.dto.event.MyEventResponseDto;
 import greencity.dto.user.UserVO;
 import greencity.entity.User;
 import greencity.entity.event.Event;
+import greencity.entity.event.EventAttendance;
 import greencity.entity.event.EventImage;
 import greencity.enums.Role;
 import greencity.exception.exceptions.BadRequestException;
@@ -14,16 +17,16 @@ import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.mapping.event.EventCreateRequestDtoMapper;
 import greencity.mapping.event.EventResponseDtoMapper;
+import greencity.mapping.event.MyEventResponseDtoMapper;
+import greencity.repository.EventAttendanceRepo;
 import greencity.repository.EventRepo;
 import greencity.repository.UserRepo;
 import greencity.validator.ImageSizeValidator;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,8 @@ public class EventServiceImpl implements EventService {
     private final FileService fileService;
     private final EventCreateRequestDtoMapper eventCreateRequestDtoMapper;
     private final EventResponseDtoMapper eventResponseDtoMapper;
+    private final EventAttendanceRepo attendanceRepo;
+    private final MyEventResponseDtoMapper myEventResponseDtoMapper;
 
     @Override
     @Transactional
@@ -55,6 +60,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventCreateRequestDtoMapper.toEntity(eventCreateRequestDto, organizer);
 
         List<EventImage> eventImages = buildEventImages(images, mainImageIndex);
+
         eventImages.forEach(image -> image.setEvent(event));
         event.setImages(eventImages);
 
@@ -70,10 +76,6 @@ public class EventServiceImpl implements EventService {
             .orElseThrow(() -> new NotFoundException(
                     ErrorMessage.EVENT_NOT_FOUND_BY_ID + eventId));
 
-        User currentUser = userRepo.findById(userVO.getId())
-                .orElseThrow(() -> new NotFoundException(
-                        ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
-
         if (userVO.getRole() != Role.ROLE_ADMIN
                 && !userVO.getId().equals(event.getOrganizer().getId())) {
             throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
@@ -86,6 +88,40 @@ public class EventServiceImpl implements EventService {
         }
 
         eventRepo.delete(event);
+    }
+
+    @Override
+    @Transactional
+    public PageableDto<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable) {
+        User user = userRepo.findById(userVO.getId())
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
+
+        List<Event> organizedEvents = eventRepo.findByOrganizerId(user.getId());
+        List<EventAttendance> joinedEvents = attendanceRepo.findByUserId(user.getId());
+
+        List<MyEventResponseDto> result = new ArrayList<>();
+
+        organizedEvents.stream()
+                .map(myEventResponseDtoMapper::fromEvent)
+                .forEach(result::add);
+
+        joinedEvents.stream()
+                .filter(attendance -> !attendance.getEvent().getOrganizer().getId().equals(user.getId()))
+                .map(myEventResponseDtoMapper::fromAttendance)
+                .forEach(result::add);
+
+        int start = Math.min((int) pageable.getOffset(), result.size());
+        int end = Math.min(start + pageable.getPageSize(), result.size());
+
+        List<MyEventResponseDto> pageContent = result.subList(start, end);
+
+        return new PageableDto<>(
+                pageContent,
+                result.size(),
+                pageable.getPageNumber(),
+                (int) Math.ceil((double) result.size() / pageable.getPageSize())
+        );
     }
 
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
