@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet id="ch-add-table-notification-1" author="GreenCityMVP">
+        <createTable tableName="notifications">
+            <column name="id" autoIncrement="true" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="target_user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="custom_message" type="VARCHAR(8000)"/>
+            <column name="target_id" type="BIGINT"/>
+            <column name="second_message" type="VARCHAR(8000)"/>
+            <column name="second_message_id" type="BIGINT"/>
+            <column name="notification_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="project_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="viewed" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time" type="timestamp with time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email_sent" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="ch-add-table-notification-2" author="GreenCityMVP">
+        <createTable tableName="notifications_users">
+            <column name="notification_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="notifications_users"
+                       columnNames="notification_id, user_id"
+                       constraintName="pk_notifications_users"/>
+    </changeSet>
+
+    <changeSet id="ch-add-table-notification-3" author="GreenCityMVP">
+        <addForeignKeyConstraint baseTableName="notifications"
+                                 baseColumnNames="target_user_id"
+                                 constraintName="fk_notifications_target_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="notifications_users"
+                                 baseColumnNames="notification_id"
+                                 constraintName="fk_notifications_users_notification"
+                                 referencedTableName="notifications"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="notifications_users"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_notifications_users_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>
