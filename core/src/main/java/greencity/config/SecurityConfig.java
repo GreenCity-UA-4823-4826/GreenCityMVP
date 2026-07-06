@@ -39,6 +39,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableGlobalAuthentication
 public class SecurityConfig {
     private static final String ECONEWS_COMMENTS = "/econews/comments";
+    private static final String NOTIFICATIONS = "/notifications";
     private static final String USER_CUSTOM_SHOPPING_LIST_ITEMS = "/user/{userId}/custom-shopping-list-items";
     private static final String CUSTOM_SHOPPING_LIST = "/custom/shopping-list-items/{userId}";
     private static final String CUSTOM_SHOPPING_LIST_URL = "/custom/shopping-list-items/{userId}/"
@@ -246,12 +247,21 @@ public class SecurityConfig {
                                 ECONEWS_COMMENTS,
                                 "/events/comments/{eventCommentId}",
                                 "/econews/{econewsId}",
+                                NOTIFICATIONS + "/{notificationId}",
                                 CUSTOM_SHOPPING_LIST_ITEMS,
                                 CUSTOM_SHOPPING_LIST_URL,
                                 "/favorite_place/{placeId}",
                                 "/social-networks",
                                 USER_CUSTOM_SHOPPING_LIST_ITEMS,
                                 USER_SHOPPING_LIST + "/user-shopping-list-items")
+                        .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
+                        .requestMatchers(HttpMethod.GET,
+                                NOTIFICATIONS,
+                                NOTIFICATIONS + "/**")
+                        .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
+                        .requestMatchers(HttpMethod.POST,
+                                NOTIFICATIONS + "/{notificationId}/viewNotification",
+                                NOTIFICATIONS + "/{notificationId}/unreadNotification")
                         .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                         .requestMatchers(HttpMethod.GET,
                                 "/newsSubscriber",

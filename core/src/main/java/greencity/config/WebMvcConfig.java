@@ -1,6 +1,7 @@
 package greencity.config;
 
 import greencity.converters.UserArgumentResolver;
+import greencity.converters.UserIdArgumentResolver;
 import greencity.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private UserService userService;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private UserIdArgumentResolver userIdArgumentResolver;
 
     /**
      * Method for configuring message source.
@@ -84,5 +87,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new UserArgumentResolver(userService, modelMapper));
+        resolvers.add(userIdArgumentResolver);
     }
 }
