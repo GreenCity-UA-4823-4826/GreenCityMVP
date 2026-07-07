@@ -24,13 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import org.apache.commons.lang3.StringUtils;
+import static greencity.constant.AppConstant.FIRST_USER_PLACEHOLDER;
+import static greencity.constant.AppConstant.SECOND_MESSAGE_PLACEHOLDER;
+import static greencity.constant.AppConstant.SECOND_USER_PLACEHOLDER;
 import static greencity.constant.AppConstant.THREE_OR_MORE_USERS;
 import static greencity.constant.AppConstant.TWO_USERS;
 import static greencity.constant.AppConstant.USER_PLACEHOLDER;
@@ -128,9 +130,12 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         ResourceBundle bundle = ResourceBundle.getBundle("notification", Locale.forLanguageTag(language),
             ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT));
 
+        List<User> uniqueUsers = notification.getActionUsers().stream().distinct().toList();
+        List<User> referencedUsers = uniqueUsers.subList(Math.max(0, uniqueUsers.size() - 2), uniqueUsers.size());
+
         dto.setTitleText(bundle.getString(dto.getNotificationType() + "_TITLE"));
-        setActionUserDetails(dto, notification);
-        dto.setBodyText(generateBodyText(notification, bundle));
+        setActionUserDetails(dto, referencedUsers);
+        dto.setBodyText(generateBodyText(notification, bundle, uniqueUsers.size(), referencedUsers));
         return dto;
     }
 
@@ -173,21 +178,26 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         notification.setSecondMessage(secondMessageText);
     }
 
-    private void setActionUserDetails(NotificationDto dto, Notification notification) {
-        List<User> uniqueUsers = notification.getActionUsers().stream().distinct().toList();
-        dto.setActionUserText(uniqueUsers.stream().map(User::getName).toList());
-        dto.setActionUserId(uniqueUsers.stream().map(User::getId).toList());
+    private void setActionUserDetails(NotificationDto dto, List<User> referencedUsers) {
+        dto.setActionUserText(referencedUsers.stream().map(User::getName).toList());
+        dto.setActionUserId(referencedUsers.stream().map(User::getId).toList());
     }
 
-    private String generateBodyText(Notification notification, ResourceBundle bundle) {
+    private String generateBodyText(Notification notification, ResourceBundle bundle, int uniqueUserCount,
+        List<User> referencedUsers) {
         String bodyTextTemplate = bundle.getString(notification.getNotificationType().toString());
-        int uniqueUserCount = new HashSet<>(notification.getActionUsers()).size();
-
-        return switch (uniqueUserCount) {
-            case 1 -> bodyTextTemplate;
-            case 2 -> bodyTextTemplate.replace(USER_PLACEHOLDER, bundle.getString(TWO_USERS));
-            default -> bodyTextTemplate.replace(USER_PLACEHOLDER, bundle.getString(THREE_OR_MORE_USERS));
+        String userText = switch (uniqueUserCount) {
+            case 1 -> referencedUsers.getFirst().getName();
+            case 2 -> bundle.getString(TWO_USERS)
+                .replace(FIRST_USER_PLACEHOLDER, referencedUsers.get(0).getName())
+                .replace(SECOND_USER_PLACEHOLDER, referencedUsers.get(1).getName());
+            default -> bundle.getString(THREE_OR_MORE_USERS)
+                .replace(FIRST_USER_PLACEHOLDER, referencedUsers.get(0).getName())
+                .replace(SECOND_USER_PLACEHOLDER, referencedUsers.get(1).getName());
         };
+        return bodyTextTemplate
+            .replace(USER_PLACEHOLDER, userText)
+            .replace(SECOND_MESSAGE_PLACEHOLDER, notification.getSecondMessage());
     }
 
     private void setValueIfNotEmpty(List<SearchCriteria> searchCriteria, String key, Object value) {
