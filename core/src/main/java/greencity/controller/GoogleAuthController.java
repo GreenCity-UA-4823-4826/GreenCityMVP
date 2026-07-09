@@ -1,6 +1,7 @@
 package greencity.controller;
 
 import greencity.dto.user.UserGoogleRegistrationDto;
+import greencity.service.GoogleUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth/google")
 @RequiredArgsConstructor
 public class GoogleAuthController {
-    private final GoogleUserServiceImpl googleUserService;
+    private final GoogleUserService googleUserService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerGoogleUser(@Valid @RequestBody UserGoogleRegistrationDto dto) {
