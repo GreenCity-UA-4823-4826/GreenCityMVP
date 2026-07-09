@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GoogleUserServiceImplTest {
     private static final String EMAIL = "google.user@gmail.com";
-    private static final String RAW_SECRET = "raw-test-value";
-    private static final String ENCODED_SECRET = "encoded-test-value";
+    private static final String RAW_VALUE = "raw-test-value";
+    private static final String ENCODED_VALUE = "encoded-test-value";
     private static final String GOOGLE_ID = "google-sub-123";
 
     @Test
@@ -30,7 +30,7 @@ class GoogleUserServiceImplTest {
         AtomicReference<User> savedUser = new AtomicReference<>();
         GoogleUserServiceImpl googleUserService = new GoogleUserServiceImpl(
             userRepo(Optional.empty(), savedUser), passwordEncoder(), new ModelMapper());
-        UserGoogleRegistrationDto dto = new UserGoogleRegistrationDto(EMAIL, RAW_SECRET, GOOGLE_ID);
+        UserGoogleRegistrationDto dto = new UserGoogleRegistrationDto(EMAIL, RAW_VALUE, GOOGLE_ID);
 
         UserVO actual = googleUserService.registerGoogleUser(dto);
         User user = savedUser.get();
@@ -49,7 +49,7 @@ class GoogleUserServiceImplTest {
         assertNotNull(user.getRefreshTokenKey());
         assertNotNull(user.getOwnSecurity());
         assertEquals(user, user.getOwnSecurity().getUser());
-        assertEquals(ENCODED_SECRET, user.getOwnSecurity().getPassword());
+        assertEquals(ENCODED_VALUE, user.getOwnSecurity().getPassword());
         assertNotNull(user.getVerifyEmail());
         assertEquals(user, user.getVerifyEmail().getUser());
     }
@@ -59,7 +59,7 @@ class GoogleUserServiceImplTest {
         AtomicReference<User> savedUser = new AtomicReference<>();
         GoogleUserServiceImpl googleUserService = new GoogleUserServiceImpl(
             userRepo(Optional.of(new User()), savedUser), passwordEncoder(), new ModelMapper());
-        UserGoogleRegistrationDto dto = new UserGoogleRegistrationDto(EMAIL, RAW_SECRET, GOOGLE_ID);
+        UserGoogleRegistrationDto dto = new UserGoogleRegistrationDto(EMAIL, RAW_VALUE, GOOGLE_ID);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
             () -> googleUserService.registerGoogleUser(dto));
@@ -89,12 +89,12 @@ class GoogleUserServiceImplTest {
         return new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
-                return ENCODED_SECRET;
+                return ENCODED_VALUE;
             }
 
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return ENCODED_SECRET.equals(encodedPassword);
+                return ENCODED_VALUE.equals(encodedPassword);
             }
         };
     }
