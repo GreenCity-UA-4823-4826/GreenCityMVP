@@ -1,6 +1,7 @@
 package greencity.controller;
 
 import greencity.dto.user.UserGoogleRegistrationDto;
+import greencity.service.GoogleUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -11,16 +12,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 @RequiredArgsConstructor
 public class RegistrationController {
+    private final GoogleUserService googleUserService;
+
     @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new UserGoogleRegistrationDto());
+    public String showRegistrationForm(UserGoogleRegistrationDto dto, Model model) {
+        model.addAttribute("user", dto);
         return "registration";
     }
 
     @PostMapping("/register")
     public String registerUser(@Valid UserGoogleRegistrationDto dto, Model model) {
-        // TODO Here you would call your service to handle registration
-        // For now we're just returning the form for demonstration
-        return "redirect:/login?registered";
+        try {
+            googleUserService.registerGoogleUser(dto);
+            return "redirect:/login?registered";
+        } catch (RuntimeException e) {
+            model.addAttribute("user", dto);
+            model.addAttribute("error", e.getMessage());
+            return "registration";
+        }
     }
 }

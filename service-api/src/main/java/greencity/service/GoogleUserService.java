@@ -4,15 +4,11 @@ import greencity.dto.user.UserGoogleRegistrationDto;
 import greencity.dto.user.UserVO;
 
 public interface GoogleUserService {
-
-    //TODO javaDoc
-
     /**
-     * Method to
+     * Registers a user with Google account data.
      *
-     * @param
-     * @return {}.
+     * @param dto Google registration data.
+     * @return registered user.
      */
     UserVO registerGoogleUser(UserGoogleRegistrationDto dto);
-
 }

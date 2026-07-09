@@ -3,6 +3,8 @@ package greencity.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -28,9 +30,16 @@ public class GoogleLoginController {
         // Handle successful Google login
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-            String email = oauthToken.getPrincipal().getAttributes().get("email").toString();
+            Object emailAttr = oauthToken.getPrincipal().getAttributes().get("email");
+            if (emailAttr == null) {
+                return "redirect:/login?error=no_email";
+            }
+
+            String email = emailAttr.toString();
+            Object googleIdAttr = oauthToken.getPrincipal().getAttributes().get("sub");
+            String googleId = googleIdAttr == null ? "" : googleIdAttr.toString();
             // Redirect to registration page with email pre-filled
-            return "redirect:/register?email=" + email;
+            return "redirect:/register?email=" + encode(email) + "&googleId=" + encode(googleId);
         }
         return "redirect:/login";
     }
@@ -40,9 +49,13 @@ public class GoogleLoginController {
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             authorizedClientService.removeAuthorizedClient(
-                    authentication.getAuthorities().toString(),
+                    "google",
                     authentication.getName());
         }
         return "redirect:/login";
+    }
+
+    private String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

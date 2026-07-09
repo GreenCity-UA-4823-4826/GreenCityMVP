@@ -9,12 +9,12 @@ import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
 import greencity.repository.UserRepo;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +24,10 @@ public class GoogleUserServiceImpl implements GoogleUserService {
     private final ModelMapper modelMapper;
 
     public UserVO registerGoogleUser(UserGoogleRegistrationDto dto) {
-        // Check if user already exists with this email
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new RuntimeException("User with this email already exists");
         }
 
-        // Create a new user with Google authentication
         User user = new User();
         user.setEmail(dto.getEmail());
         user.setName(dto.getEmail().substring(0, dto.getEmail().indexOf('@')));
@@ -39,6 +37,7 @@ public class GoogleUserServiceImpl implements GoogleUserService {
         user.setRefreshTokenKey(UUID.randomUUID().toString());
         user.setEmailNotification(EmailNotification.DISABLED);
         user.setIsGoogleAuth(true);
+        user.setGoogleId(dto.getGoogleId());
 
         OwnSecurity ownSecurity = OwnSecurity.builder()
             .user(user)

@@ -18,13 +18,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import java.util.Arrays;
-import java.util.Collections;
 import static greencity.constant.AppConstant.*;
 import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -80,15 +77,11 @@ public class SecurityConfig {
     public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:4205"));
+                    config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4205"));
                     config.setAllowedMethods(
                             Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
-                    config.setAllowedHeaders(
-                            Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Headers",
-                                    "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
+                    config.setAllowedHeaders(Arrays.asList("*"));
                     config.setAllowCredentials(true);
-                    config.setAllowedHeaders(Collections.singletonList("*"));
                     config.setMaxAge(3600L);
                     return config;
                 }))
@@ -103,6 +96,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/management/", "/management/login").permitAll()
+                        .requestMatchers("/auth/google/**", "/login", "/register", "/oauth2/**", "/login/oauth2/**")
+                        .permitAll()
                         .requestMatchers("/v2/api-docs/**", "/v3/api-docs/**", "/swagger.json",
                                 "/swagger-ui.html")
                         .permitAll()
@@ -291,7 +286,10 @@ public class SecurityConfig {
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
                         .deleteCookies("accessToken")
-                        .logoutSuccessUrl("/"));
+                        .logoutSuccessUrl("/"))
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/auth/google/success", true)
+                        .failureUrl("/login?error=true"));
         return http.build();
     }
 
@@ -313,28 +311,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/google/**").permitAll()
-                        .anyRequest().authenticated())
-                .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/auth/google/success", true)
-                        .failureUrl("/login?error=true"))
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll());
-        return http.build();
-    }
-
-    @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
-        handler.setDefaultTargetUrl("/home");
-        return handler;
     }
 }
