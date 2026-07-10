@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import java.util.Arrays;
-import java.util.Collections;
 import static greencity.constant.AppConstant.*;
 import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -39,6 +38,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableGlobalAuthentication
 public class SecurityConfig {
     private static final String ECONEWS_COMMENTS = "/econews/comments";
+    private static final String NOTIFICATIONS = "/notifications";
     private static final String USER_CUSTOM_SHOPPING_LIST_ITEMS = "/user/{userId}/custom-shopping-list-items";
     private static final String CUSTOM_SHOPPING_LIST = "/custom/shopping-list-items/{userId}";
     private static final String CUSTOM_SHOPPING_LIST_URL = "/custom/shopping-list-items/{userId}/"
@@ -78,15 +78,11 @@ public class SecurityConfig {
     public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-            config.setAllowedOrigins(Collections.singletonList("http://localhost:4205"));
+            config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4205"));
             config.setAllowedMethods(
                 Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
-            config.setAllowedHeaders(
-                Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Headers",
-                    "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
+            config.setAllowedHeaders(Arrays.asList("*"));
             config.setAllowCredentials(true);
-            config.setAllowedHeaders(Collections.singletonList("*"));
             config.setMaxAge(3600L);
             return config;
         }))
@@ -101,6 +97,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(req -> req
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/", "/management/", "/management/login").permitAll()
+                .requestMatchers("/auth/google/**", "/login", "/register", "/oauth2/**", "/login/oauth2/**")
+                .permitAll()
                 .requestMatchers("/v2/api-docs/**", "/v3/api-docs/**", "/swagger.json",
                     "/swagger-ui.html")
                 .permitAll()
@@ -195,7 +193,8 @@ public class SecurityConfig {
                     "/habit/assign/{habitAssignId}",
                     "/habit/tags/search",
                     "/habit/search",
-                    "/habit/{habitId}/friends/profile-pictures")
+                    "/habit/{habitId}/friends/profile-pictures",
+                    "/events/myEvents")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
                     "/category",
@@ -217,7 +216,8 @@ public class SecurityConfig {
                     USER_SHOPPING_LIST,
                     "/user/{userId}/habit",
                     "/habit/custom",
-                    "/custom/shopping-list-items/{userId}/{habitId}/custom-shopping-list-items")
+                    "/custom/shopping-list-items/{userId}/{habitId}/custom-shopping-list-items",
+                    "/events")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PUT,
                     "/habit/statistic/{id}",
@@ -245,13 +245,23 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE,
                     ECONEWS_COMMENTS,
                     "/events/comments/{eventCommentId}",
+                    "/events/{eventId}",
                     "/econews/{econewsId}",
+                    NOTIFICATIONS + "/{notificationId}",
                     CUSTOM_SHOPPING_LIST_ITEMS,
                     CUSTOM_SHOPPING_LIST_URL,
                     "/favorite_place/{placeId}",
                     "/social-networks",
                     USER_CUSTOM_SHOPPING_LIST_ITEMS,
                     USER_SHOPPING_LIST + "/user-shopping-list-items")
+                .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
+                .requestMatchers(HttpMethod.GET,
+                    NOTIFICATIONS,
+                    NOTIFICATIONS + "/**")
+                .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
+                .requestMatchers(HttpMethod.POST,
+                    NOTIFICATIONS + "/{notificationId}/viewNotification",
+                    NOTIFICATIONS + "/{notificationId}/unreadNotification")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.GET,
                     "/newsSubscriber",
@@ -289,7 +299,10 @@ public class SecurityConfig {
                 .clearAuthentication(true)
                 .invalidateHttpSession(true)
                 .deleteCookies("accessToken")
-                .logoutSuccessUrl("/"));
+                .logoutSuccessUrl("/"))
+            .oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("/auth/google/success", true)
+                .failureUrl("/login?error=true"));
         return http.build();
     }
 
