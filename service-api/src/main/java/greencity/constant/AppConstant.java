@@ -12,12 +12,20 @@ public final class AppConstant {
     public static final String AUTHORIZATION = "Authorization";
     public static final String ROLE = "role";
     public static final String DEFAULT_LANGUAGE_CODE = "en";
+    public static final String USER_PLACEHOLDER = "{user}";
+    public static final String FIRST_USER_PLACEHOLDER = "{user1}";
+    public static final String SECOND_USER_PLACEHOLDER = "{user2}";
+    public static final String SECOND_MESSAGE_PLACEHOLDER = "{secondMessage}";
+    public static final String TWO_USERS = "TWO_USERS";
+    public static final String THREE_OR_MORE_USERS = "THREE_OR_MORE_USERS";
     public static final Integer MAX_NUMBER_OF_HABIT_ASSIGNS_FOR_USER = 6;
     public static final int MIN_DAYS_DURATION = 7;
     public static final int MAX_DAYS_DURATION = 56;
     public static final Integer MAX_PASSED_DAYS_OF_ABILITY_TO_ENROLL = 8;
     public static final String DEFAULT_HABIT_IMAGE =
         "https://csb10032000a548f571.blob.core.windows.net/allfiles/8f09887c-2fbf-4ee1-95fc-6763a1873b93EventDefaultImage.png";
+    public static final String DEFAULT_EVENT_IMAGE =
+            "https://csb10032000a548f571.blob.core.windows.net/allfiles/8f09887c-2fbf-4ee1-95fc-6763a1873b93EventDefaultImage.png";
 
     private AppConstant() {
     }

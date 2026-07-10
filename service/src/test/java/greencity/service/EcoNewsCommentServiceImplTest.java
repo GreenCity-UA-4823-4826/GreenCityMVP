@@ -13,16 +13,19 @@ import greencity.enums.Role;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
+import greencity.event.EcoNewsCommentNotificationEvent;
 import greencity.repository.EcoNewsCommentRepo;
 import greencity.repository.EcoNewsRepo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +60,8 @@ class EcoNewsCommentServiceImplTest {
     private HttpServletRequest httpServletRequest;
     @Mock
     EcoNewsRepo ecoNewsRepo;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
     @InjectMocks
     private EcoNewsCommentServiceImpl ecoNewsCommentService;
 
@@ -81,6 +86,38 @@ class EcoNewsCommentServiceImplTest {
 
         ecoNewsCommentService.save(1L, addEcoNewsCommentDtoRequest, userVO);
         verify(ecoNewsCommentRepo).save(any(EcoNewsComment.class));
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void saveComment_CommenterDifferentFromAuthor_PublishesNotificationEvent() {
+        UserVO userVO = getUserVO();
+        userVO.setId(2L);
+        User user = getUser();
+        user.setId(2L);
+        EcoNewsVO ecoNewsVO = ModelUtils.getEcoNewsVO();
+        EcoNews ecoNews = ModelUtils.getEcoNews();
+        AddEcoNewsCommentDtoRequest addEcoNewsCommentDtoRequest = ModelUtils.getAddEcoNewsCommentDtoRequest();
+        EcoNewsComment ecoNewsComment = ModelUtils.getEcoNewsComment();
+
+        when(ecoNewsService.findById(anyLong())).thenReturn(ecoNewsVO);
+        when(ecoNewsCommentRepo.save(any(EcoNewsComment.class))).then(AdditionalAnswers.returnsFirstArg());
+        when(modelMapper.map(userVO, User.class)).thenReturn(user);
+        when(modelMapper.map(ecoNewsVO, EcoNews.class)).thenReturn(ecoNews);
+        when(modelMapper.map(addEcoNewsCommentDtoRequest, EcoNewsComment.class)).thenReturn(ecoNewsComment);
+        when(modelMapper.map(any(EcoNewsComment.class), eq(AddEcoNewsCommentDtoResponse.class)))
+            .thenReturn(ModelUtils.getAddEcoNewsCommentDtoResponse());
+
+        ecoNewsCommentService.save(1L, addEcoNewsCommentDtoRequest, userVO);
+
+        ArgumentCaptor<EcoNewsCommentNotificationEvent> captor =
+            ArgumentCaptor.forClass(EcoNewsCommentNotificationEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        EcoNewsCommentNotificationEvent event = captor.getValue();
+        assertEquals(ecoNewsVO.getAuthor(), event.getAuthor());
+        assertEquals(userVO, event.getCommenter());
+        assertEquals(1L, event.getEcoNewsId());
+        assertEquals(ecoNewsVO.getTitle(), event.getNewsTitle());
     }
 
     @Test
