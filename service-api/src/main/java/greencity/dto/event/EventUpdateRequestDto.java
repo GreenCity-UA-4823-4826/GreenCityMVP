@@ -1,6 +1,5 @@
 package greencity.dto.event;
 
-import greencity.annotations.ValidEventLocation;
 import greencity.enums.event.EventType;
 import greencity.enums.event.EventVisibility;
 import greencity.enums.event.InitiativeType;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@ValidEventLocation
 @Getter
 @Setter
 public class EventUpdateRequestDto {
