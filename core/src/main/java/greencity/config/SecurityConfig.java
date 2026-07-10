@@ -47,6 +47,7 @@ public class SecurityConfig {
     private static final String CUSTOM_SHOPPING_LIST_ITEMS = "/{userId}/custom-shopping-list-items";
     private static final String HABIT_ASSIGN_ID = "/habit/assign/{habitId}";
     private static final String USER_SHOPPING_LIST = "/user/shopping-list-items";
+    private static final String EVENT_ID = "/events/{eventId}";
     private final JwtTool jwtTool;
     private final UserService userService;
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -230,7 +231,7 @@ public class SecurityConfig {
                                 HABIT_ASSIGN_ID + "/update-habit-duration",
                                 "/habit/assign/{habitAssignId}/updateProgressNotificationHasDisplayed",
                                 HABIT_ASSIGN_ID + "/allUserAndCustomList",
-                                "/events/{eventId}")
+                                EVENT_ID)
                         .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                         .requestMatchers(HttpMethod.PATCH,
                                 ECONEWS_COMMENTS,
@@ -249,7 +250,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,
                                 ECONEWS_COMMENTS,
                                 "/events/comments/{eventCommentId}",
-                                "/events/{eventId}",
+                                EVENT_ID,
                                 "/econews/{econewsId}",
                                 NOTIFICATIONS + "/{notificationId}",
                                 CUSTOM_SHOPPING_LIST_ITEMS,
