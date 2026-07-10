@@ -138,6 +138,7 @@ public final class ErrorMessage {
     public static final String IMAGE_SIZE_EXCEEDED = "Incorrect image size. Maximum allowed size is 10 MB";
     public static final String INVALID_IMAGE_TYPE = "Invalid image type. Only JPEG and PNG are allowed.";
     public static final String EVENT_NOT_FOUND_BY_ID = "The event does not exist by this id: ";
+    public static final String NOTIFICATION_NOT_FOUND_BY_ID = "Notification not found by id: ";
 
     private ErrorMessage() {
     }
