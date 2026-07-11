@@ -142,6 +142,7 @@ public final class ErrorMessage {
     public static final String EVENT_ALREADY_PASSED = "Cannot edit a past event.";
     public static final String IMAGE_MARKERS_COUNT_MISMATCH =
             "The number of NEW_ markers does not match the actual number of provided images.";
+    public static final String INVALID_IMAGE_URL = "Image URL does not belong to this event.";
     private ErrorMessage() {
     }
 }

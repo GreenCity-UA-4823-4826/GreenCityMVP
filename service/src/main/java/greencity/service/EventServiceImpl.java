@@ -206,6 +206,10 @@ public class EventServiceImpl implements EventService {
             for (int i = 0; i < dto.getImageOrder().size(); i++) {
                 String item = dto.getImageOrder().get(i);
 
+                if (!item.startsWith("NEW_") && !currentUrls.contains(item)) {
+                    throw new BadRequestException(ErrorMessage.INVALID_IMAGE_URL);
+                }
+
                 String imageUrl = item.startsWith("NEW_")
                         ? uploadedUrlsByMarker.get(item)
                         : item;
