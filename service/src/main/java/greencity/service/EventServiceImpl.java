@@ -175,7 +175,15 @@ public class EventServiceImpl implements EventService {
         Map<String, String> uploadedUrlsByMarker = new HashMap<>();
         for (String item : dto.getImageOrder()) {
             if (item.startsWith("NEW_") && newImages != null) {
-                int fileIndex = Integer.parseInt(item.substring("NEW_".length()));
+                int fileIndex;
+                try {
+                    fileIndex = Integer.parseInt(item.substring("NEW_".length()));
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException(ErrorMessage.IMAGE_MARKERS_COUNT_MISMATCH);
+                }
+                if (fileIndex < 0 || fileIndex >= newImages.length) {
+                    throw new BadRequestException(ErrorMessage.IMAGE_MARKERS_COUNT_MISMATCH);
+                }
                 MultipartFile file = newImages[fileIndex];
                 validateImage(file);
                 String uploadedUrl = fileService.upload(file);
