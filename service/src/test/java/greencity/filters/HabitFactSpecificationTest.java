@@ -97,13 +97,13 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldReturnPredicate_WhenSearchById() {
         SearchCriteria searchCriteria = SearchCriteria.builder()
-                .type("id")
-                .key("id")
-                .value(1L)
-                .build();
+            .type("id")
+            .key("id")
+            .value(1L)
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(searchCriteria));
+            new HabitFactSpecification(List.of(searchCriteria));
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
         when(root.get("id")).thenReturn(habitFactIdPathByString);
@@ -123,13 +123,13 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldReturnPredicate_WhenSearchByHabitId() {
         SearchCriteria searchCriteria = SearchCriteria.builder()
-                .type("habitId")
-                .key("habitId")
-                .value(10L)
-                .build();
+            .type("habitId")
+            .key("habitId")
+            .value(10L)
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(searchCriteria));
+            new HabitFactSpecification(List.of(searchCriteria));
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
         when(root.join(HabitFact_.habit)).thenReturn(habitJoin);
@@ -152,40 +152,41 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldReturnPredicate_WhenSearchByContent() {
         SearchCriteria searchCriteria = SearchCriteria.builder()
-                .type("content")
-                .key("content")
-                .value("eco")
-                .build();
+            .type("content")
+            .key("content")
+            .value("eco")
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(searchCriteria));
+            new HabitFactSpecification(List.of(searchCriteria));
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
 
         when(criteriaQuery.from(HabitFactTranslation.class))
-                .thenReturn(habitFactTranslationRoot);
-        // Static metamodel fields can be null in isolated unit tests without JPA context.
+            .thenReturn(habitFactTranslationRoot);
+        // Static metamodel fields can be null in isolated unit tests without JPA
+        // context.
         doReturn(contentPath, habitFactTranslationHabitFactPath)
-                .when(habitFactTranslationRoot)
-                .get((SingularAttribute) isNull());
+            .when(habitFactTranslationRoot)
+            .get((SingularAttribute) isNull());
 
         when(criteriaBuilder.like(contentPath, "%eco%")).thenReturn(likePredicate);
 
         doReturn(habitFactTranslationHabitFactIdPath)
-                .when(habitFactTranslationHabitFactPath)
-                .get((SingularAttribute) isNull());
+            .when(habitFactTranslationHabitFactPath)
+            .get((SingularAttribute) isNull());
 
         doReturn(habitFactIdPath)
-                .when(root)
-                .get((SingularAttribute) isNull());
+            .when(root)
+            .get((SingularAttribute) isNull());
 
         when(criteriaBuilder.equal(habitFactTranslationHabitFactIdPath, habitFactIdPath))
-                .thenReturn(equalPredicate);
+            .thenReturn(equalPredicate);
 
         when(criteriaBuilder.and(likePredicate, equalPredicate))
-                .thenReturn(contentPredicate);
+            .thenReturn(contentPredicate);
         when(criteriaBuilder.and(initialPredicate, contentPredicate))
-                .thenReturn(resultPredicate);
+            .thenReturn(resultPredicate);
 
         Predicate actual = specification.toPredicate(root, criteriaQuery, criteriaBuilder);
 
@@ -205,21 +206,21 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldNotAddAdditionalPredicate_WhenContentIsEmptyString() {
         SearchCriteria searchCriteria = SearchCriteria.builder()
-                .type("content")
-                .key("content")
-                .value("")
-                .build();
+            .type("content")
+            .key("content")
+            .value("")
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(searchCriteria));
+            new HabitFactSpecification(List.of(searchCriteria));
 
         when(criteriaBuilder.conjunction())
-                .thenReturn(initialPredicate)
-                .thenReturn(emptyContentPredicate);
+            .thenReturn(initialPredicate)
+            .thenReturn(emptyContentPredicate);
         when(criteriaQuery.from(HabitFactTranslation.class))
-                .thenReturn(habitFactTranslationRoot);
+            .thenReturn(habitFactTranslationRoot);
         when(criteriaBuilder.and(initialPredicate, emptyContentPredicate))
-                .thenReturn(resultPredicate);
+            .thenReturn(resultPredicate);
 
         Predicate actual = specification.toPredicate(root, criteriaQuery, criteriaBuilder);
 
@@ -234,19 +235,19 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldBuildCompoundPredicate_WhenMultipleSearchCriteriaProvided() {
         SearchCriteria idCriteria = SearchCriteria.builder()
-                .type("id")
-                .key("id")
-                .value(1L)
-                .build();
+            .type("id")
+            .key("id")
+            .value(1L)
+            .build();
 
         SearchCriteria habitIdCriteria = SearchCriteria.builder()
-                .type("habitId")
-                .key("habitId")
-                .value(10L)
-                .build();
+            .type("habitId")
+            .key("habitId")
+            .value(10L)
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(idCriteria, habitIdCriteria));
+            new HabitFactSpecification(List.of(idCriteria, habitIdCriteria));
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
 
@@ -278,20 +279,20 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldThrowNullPointerException_WhenContentValueIsNull() {
         SearchCriteria searchCriteria = SearchCriteria.builder()
-                .type("content")
-                .key("content")
-                .value(null)
-                .build();
+            .type("content")
+            .key("content")
+            .value(null)
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(searchCriteria));
+            new HabitFactSpecification(List.of(searchCriteria));
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
         when(criteriaQuery.from(HabitFactTranslation.class))
-                .thenReturn(habitFactTranslationRoot);
+            .thenReturn(habitFactTranslationRoot);
 
         assertThrows(NullPointerException.class,
-                () -> specification.toPredicate(root, criteriaQuery, criteriaBuilder));
+            () -> specification.toPredicate(root, criteriaQuery, criteriaBuilder));
 
         verify(criteriaBuilder).conjunction();
         verify(criteriaQuery).from(HabitFactTranslation.class);
@@ -300,7 +301,7 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldReturnConjunction_WhenSearchCriteriaListIsEmpty() {
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of());
+            new HabitFactSpecification(List.of());
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
 
@@ -314,13 +315,13 @@ class HabitFactSpecificationTest {
     @Test
     void toPredicate_ShouldReturnConjunction_WhenSearchCriteriaTypeIsUnknown() {
         SearchCriteria searchCriteria = SearchCriteria.builder()
-                .type("unknown")
-                .key("unknown")
-                .value("some value")
-                .build();
+            .type("unknown")
+            .key("unknown")
+            .value("some value")
+            .build();
 
         HabitFactSpecification specification =
-                new HabitFactSpecification(List.of(searchCriteria));
+            new HabitFactSpecification(List.of(searchCriteria));
 
         when(criteriaBuilder.conjunction()).thenReturn(initialPredicate);
 
