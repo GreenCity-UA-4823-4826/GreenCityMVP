@@ -79,10 +79,7 @@ public class EventServiceImpl implements EventService {
             .orElseThrow(() -> new NotFoundException(
                     ErrorMessage.EVENT_NOT_FOUND_BY_ID + eventId));
 
-        if (userVO.getRole() != Role.ROLE_ADMIN
-                && !userVO.getId().equals(event.getOrganizer().getId())) {
-            throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
-        }
+        validateUser(userVO, event);
 
         for (EventImage image : event.getImages()) {
             if (!image.getImageUrl().equals(AppConstant.DEFAULT_EVENT_IMAGE)) {
@@ -137,10 +134,7 @@ public class EventServiceImpl implements EventService {
                         ErrorMessage.EVENT_NOT_FOUND_BY_ID + eventId));
 
         //permission check
-        if (userVO.getRole() != Role.ROLE_ADMIN
-                && !userVO.getId().equals(event.getOrganizer().getId())) {
-            throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
-        }
+        validateUser(userVO, event);
 
         //past event check
         boolean allPast = event.getDates().stream()
@@ -273,6 +267,13 @@ public class EventServiceImpl implements EventService {
         }
         if (!new ImageSizeValidator().isValid(image, null)) {
             throw new BadRequestException(ErrorMessage.IMAGE_SIZE_EXCEEDED);
+        }
+    }
+
+    private void validateUser(UserVO userVO, Event event) {
+        if (userVO.getRole() != Role.ROLE_ADMIN
+                && !userVO.getId().equals(event.getOrganizer().getId())) {
+            throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
         }
     }
 }
