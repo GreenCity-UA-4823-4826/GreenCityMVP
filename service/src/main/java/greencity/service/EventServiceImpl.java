@@ -144,6 +144,9 @@ public class EventServiceImpl implements EventService {
         }
 
         //validate image order
+        if (dto.getImageOrder().size() > MAX_IMAGES) {
+            throw new BadRequestException(ErrorMessage.TOO_MANY_EVENT_IMAGES);
+        }
         long newImageMarkerCount = dto.getImageOrder().stream()
                 .filter(item -> item.startsWith("NEW_"))
                 .count();
