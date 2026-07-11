@@ -149,7 +149,7 @@ public class EventServiceImpl implements EventService {
                 .count();
         int actualNewImagesCount = (newImages == null) ? 0 : newImages.length;
         if (newImageMarkerCount != actualNewImagesCount) {
-            throw new BadRequestException(ErrorMessage.INVALID_MAIN_IMAGE_INDEX);
+            throw new BadRequestException(ErrorMessage.IMAGE_MARKERS_COUNT_MISMATCH);
         }
         if (dto.getMainImageIndex() != null) {
             boolean indexOutOfBounds = dto.getMainImageIndex() < 0
