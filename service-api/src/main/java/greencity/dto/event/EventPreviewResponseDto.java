@@ -3,6 +3,7 @@ package greencity.dto.event;
 import greencity.enums.event.EventStatus;
 import greencity.enums.event.EventType;
 import greencity.enums.event.EventVisibility;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-@Setter
+@Builder
 public class EventPreviewResponseDto {
     private Long id;
 
