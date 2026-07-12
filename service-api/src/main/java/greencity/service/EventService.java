@@ -1,13 +1,13 @@
 package greencity.service;
 
 import greencity.dto.PageableDto;
-import greencity.dto.event.EventCreateRequestDto;
-import greencity.dto.event.EventResponseDto;
-import greencity.dto.event.MyEventResponseDto;
+import greencity.dto.event.*;
 import greencity.dto.user.UserVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 /**
  * Provides the interface to manage {@code Event} entity.
@@ -46,4 +46,20 @@ public interface EventService {
      * @return page of {@link MyEventResponseDto}.
      */
     PageableDto<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable);
+
+    /**
+     * Method for getting event title suggestions for search dropdown.
+     *
+     * @param query - search string (minimum 3 characters).
+     * @return list of {@link EventSearchSuggestionResponseDto} with matching event titles.
+     */
+    List<EventSearchSuggestionResponseDto> getSearchSuggestions(String query);
+
+    /**
+     * Method for searching events by title.
+     *
+     * @param query - search string (minimum 3 characters).
+     * @return list of {@link EventPreviewResponseDto} sorted by relevance.
+     */
+    List<EventPreviewResponseDto> searchEvents(String query);
 }
