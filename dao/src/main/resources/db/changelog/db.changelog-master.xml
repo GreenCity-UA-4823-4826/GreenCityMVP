@@ -179,5 +179,6 @@
     <include file="db/changelog/logs/ch-add-table-events-vdovych.xml"/>
     <include file="db/changelog/logs/ch-add-event-attendance-Vdovych.xml"/>
     <include file="db/changelog/logs/ch-add-table-notification.xml"/>
+    <include file="db/changelog/logs/ch-add-new-columns-user-Kelevich.xml"/>
 </databaseChangeLog>
 
