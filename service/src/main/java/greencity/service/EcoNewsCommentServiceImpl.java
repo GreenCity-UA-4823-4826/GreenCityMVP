@@ -15,8 +15,10 @@ import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.repository.EcoNewsCommentRepo;
 import greencity.repository.EcoNewsRepo;
+import greencity.event.EcoNewsCommentNotificationEvent;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -38,6 +40,7 @@ public class EcoNewsCommentServiceImpl implements EcoNewsCommentService {
     private final greencity.rating.RatingCalculation ratingCalculation;
     private final HttpServletRequest httpServletRequest;
     private final EcoNewsRepo ecoNewsRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Method to save {@link greencity.entity.EcoNewsComment}.
@@ -71,7 +74,18 @@ public class EcoNewsCommentServiceImpl implements EcoNewsCommentService {
         String accessToken = httpServletRequest.getHeader(AUTHORIZATION);
         CompletableFuture.runAsync(
             () -> ratingCalculation.ratingCalculation(RatingCalculationEnum.ADD_COMMENT, userVO, accessToken));
-        return modelMapper.map(ecoNewsCommentRepo.save(ecoNewsComment), AddEcoNewsCommentDtoResponse.class);
+        EcoNewsComment savedComment = ecoNewsCommentRepo.save(ecoNewsComment);
+        if (addEcoNewsCommentDtoRequest.getParentCommentId() == 0
+            && ecoNewsVO.getAuthor() != null
+            && !userVO.getId().equals(ecoNewsVO.getAuthor().getId())) {
+            eventPublisher.publishEvent(EcoNewsCommentNotificationEvent.builder()
+                .author(ecoNewsVO.getAuthor())
+                .commenter(userVO)
+                .ecoNewsId(econewsId)
+                .newsTitle(ecoNewsVO.getTitle())
+                .build());
+        }
+        return modelMapper.map(savedComment, AddEcoNewsCommentDtoResponse.class);
     }
 
     /**
@@ -248,7 +262,7 @@ public class EcoNewsCommentServiceImpl implements EcoNewsCommentService {
     public int countOfComments(Long ecoNewsId) {
         // Retrieve the EcoNews object by its ID
         EcoNews ecoNews = ecoNewsRepo.findById(ecoNewsId)
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.ECO_NEWS_NOT_FOUND_BY_ID + ecoNewsId));
+            .orElseThrow(() -> new NotFoundException(ErrorMessage.ECO_NEWS_NOT_FOUND_BY_ID + ecoNewsId));
 
         // Pass the ID of the EcoNews object to the repository method
         return ecoNewsCommentRepo.countEcoNewsCommentByEcoNews(ecoNews.getId());

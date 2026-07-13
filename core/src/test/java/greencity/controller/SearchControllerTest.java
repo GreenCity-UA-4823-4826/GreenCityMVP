@@ -62,68 +62,67 @@ class SearchControllerTest {
     private static final String blankString = "\"\"";
 
     private final List<SearchNewsDto> news = Stream.of(
-                    new SearchNewsDto(0L,
-                            "Summer is coming, get ready",
-                            new EcoNewsAuthorDto(0L, "Valera Borov"),
-                            ZonedDateTime.now().minusDays(9),
-                            List.of("#summer", "#getting_ready")),
-                    new SearchNewsDto(1L,
-                            "Eco bus summer parking schedule",
-                            new EcoNewsAuthorDto(1L, "Maslach"),
-                            ZonedDateTime.now().minusDays(20),
-                            List.of("#summer", "#bus_stop")),
-                    new SearchNewsDto(2L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(9),
-                            List.of("#driving")),
-                    new SearchNewsDto(3L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(9),
-                            List.of("#driving")),
-                    new SearchNewsDto(4L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(10),
-                            List.of("#driving")),
-                    new SearchNewsDto(5L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(11),
-                            List.of("#driving")),
-                    new SearchNewsDto(6L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(12),
-                            List.of("#driving")),
-                    new SearchNewsDto(7L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(13),
-                            List.of("#driving")),
-                    new SearchNewsDto(8L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(14),
-                            List.of("#driving")),
-                    new SearchNewsDto(9L,
-                            "EV performance differences in comparing with classic approach",
-                            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
-                            ZonedDateTime.now().minusDays(15),
-                            List.of("#driving")))
-            .collect(Collectors.toCollection(ArrayList::new));
+        new SearchNewsDto(0L,
+            "Summer is coming, get ready",
+            new EcoNewsAuthorDto(0L, "Valera Borov"),
+            ZonedDateTime.now().minusDays(9),
+            List.of("#summer", "#getting_ready")),
+        new SearchNewsDto(1L,
+            "Eco bus summer parking schedule",
+            new EcoNewsAuthorDto(1L, "Maslach"),
+            ZonedDateTime.now().minusDays(20),
+            List.of("#summer", "#bus_stop")),
+        new SearchNewsDto(2L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(9),
+            List.of("#driving")),
+        new SearchNewsDto(3L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(9),
+            List.of("#driving")),
+        new SearchNewsDto(4L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(10),
+            List.of("#driving")),
+        new SearchNewsDto(5L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(11),
+            List.of("#driving")),
+        new SearchNewsDto(6L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(12),
+            List.of("#driving")),
+        new SearchNewsDto(7L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(13),
+            List.of("#driving")),
+        new SearchNewsDto(8L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(14),
+            List.of("#driving")),
+        new SearchNewsDto(9L,
+            "EV performance differences in comparing with classic approach",
+            new EcoNewsAuthorDto(2L, "Micro Barbers fellow"),
+            ZonedDateTime.now().minusDays(15),
+            List.of("#driving")))
+        .collect(Collectors.toCollection(ArrayList::new));
 
-    private final PageableDto<SearchNewsDto> pageableDto
-            = new PageableDto<>(news, 10L, 0, 2);
+    private final PageableDto<SearchNewsDto> pageableDto = new PageableDto<>(news, 10L, 0, 2);
 
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(searchController)
-                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
-                .setValidator(mockValidator)
-                .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
-                .build();
+            .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
+            .setValidator(mockValidator)
+            .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
+            .build();
     }
 
     // GET /search?searchQuery=eco → should return SearchResponseDto
@@ -132,27 +131,28 @@ class SearchControllerTest {
     @Test
     void searchEco() throws Exception {
         SearchResponseDto dto = SearchResponseDto.builder()
-                .ecoNews(news)
-                .countOfResults(10L)
-                .build();
+            .ecoNews(news)
+            .countOfResults(10L)
+            .build();
 
         when(searchService.search(searchQueryEco, localeEN))
-                .thenReturn(dto);
+            .thenReturn(dto);
 
         mockMvc.perform(get(searchLink + queryParamSearchEco)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(dto)))
-                .andExpect(jsonPath("$.ecoNews[*].title").isNotEmpty())
-                .andExpect(jsonPath("$.ecoNews[*].author.id").isNotEmpty())
-                .andExpect(jsonPath("$.ecoNews[*].author.name").isNotEmpty())
-                .andExpect(jsonPath("$.ecoNews[*].creationDate").isNotEmpty())
-                .andExpect(jsonPath("$.ecoNews[*].tags").isNotEmpty());
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json(objectMapper.writeValueAsString(dto)))
+            .andExpect(jsonPath("$.ecoNews[*].title").isNotEmpty())
+            .andExpect(jsonPath("$.ecoNews[*].author.id").isNotEmpty())
+            .andExpect(jsonPath("$.ecoNews[*].author.name").isNotEmpty())
+            .andExpect(jsonPath("$.ecoNews[*].creationDate").isNotEmpty())
+            .andExpect(jsonPath("$.ecoNews[*].tags").isNotEmpty());
 
         verify(searchService, times(1)).search(searchQueryEco, localeEN);
     }
 
-    // GET /search/econews?searchQuery=eco&page=0&size=5 → should return paginated PageableDto<SearchNewsDto>
+    // GET /search/econews?searchQuery=eco&page=0&size=5 → should return paginated
+    // PageableDto<SearchNewsDto>
     // Verify interactions with searchAllNews(...)
     // Locale resolution – verify it is passed to the service
     @Test
@@ -176,21 +176,22 @@ class SearchControllerTest {
 
     }
 
-    // Invalid/missing searchQuery → should return 400 BAD REQUEST (validation test,optional)
+    // Invalid/missing searchQuery → should return 400 BAD REQUEST (validation
+    // test,optional)
     @Test
     void searchNegativeBadRequest() throws Exception {
         Mockito.when(searchService.search(blankString, localeEN))
-                .thenThrow(greencity.exception.exceptions.BadRequestException.class);
+            .thenThrow(greencity.exception.exceptions.BadRequestException.class);
 
         Mockito.when(searchService.searchAllNews(any(Pageable.class),
-                        eq(blankString),
-                        eq(Locale.ENGLISH.getLanguage())))
-                .thenThrow(greencity.exception.exceptions.BadRequestException.class);
+            eq(blankString),
+            eq(Locale.ENGLISH.getLanguage())))
+            .thenThrow(greencity.exception.exceptions.BadRequestException.class);
 
         mockMvc.perform(get(searchLink + queryParamSearchEmpty))
-                .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
 
         mockMvc.perform(get(searchLink + ecoNewsLink + queryParamSearchEcoEmptyPaginated))
-                .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
     }
 }
