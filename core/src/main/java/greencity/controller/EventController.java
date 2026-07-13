@@ -3,9 +3,7 @@ package greencity.controller;
 import greencity.annotations.CurrentUser;
 import greencity.constant.HttpStatuses;
 import greencity.dto.PageableDto;
-import greencity.dto.event.EventCreateRequestDto;
-import greencity.dto.event.EventResponseDto;
-import greencity.dto.event.MyEventResponseDto;
+import greencity.dto.event.*;
 import greencity.dto.user.UserVO;
 import greencity.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,17 +13,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
+@Validated
 public class EventController {
 
     private final EventService eventService;
@@ -105,5 +108,41 @@ public class EventController {
                                               @Parameter(hidden = true) @CurrentUser UserVO userVO) {
         eventService.deleteEvent(eventId, userVO);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Method for getting event title suggestions for search dropdown.
+     *
+     * @param query - search string for event title suggestions (max 64 characters).
+     * @return {@link ResponseEntity} with list of {@link EventSearchSuggestionResponseDto}.
+     */
+    @Operation(summary = "Get user's search suggestions by title in the dropdown")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
+                    content = @Content(schema = @Schema(implementation = EventSearchSuggestionResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+    })
+    @GetMapping("/search/suggestions")
+    public ResponseEntity<List<EventSearchSuggestionResponseDto>> getSearchSuggestions(
+            @Size(max = 64) @RequestParam String query) {
+        return ResponseEntity.ok(eventService.getSearchSuggestions(query));
+    }
+
+    /**
+     * Method for searching events by title keyword.
+     *
+     * @param query - search string to match against event titles (max 64 characters).
+     * @return {@link ResponseEntity} with list of {@link EventPreviewResponseDto} sorted by relevance.
+     */
+    @Operation(summary = "Search for events")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
+                    content = @Content(schema = @Schema(implementation = EventPreviewResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+    })
+    @GetMapping("/search")
+    public ResponseEntity<List<EventPreviewResponseDto>> searchEvents(
+            @Size(max = 64) @RequestParam String query) {
+        return ResponseEntity.ok(eventService.searchEvents(query));
     }
 }
