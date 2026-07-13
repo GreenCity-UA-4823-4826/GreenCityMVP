@@ -4,8 +4,11 @@ import greencity.ModelUtils;
 import greencity.constant.ErrorMessage;
 import greencity.converters.UserArgumentResolver;
 import greencity.dto.PageableDto;
+import greencity.dto.event.EventPreviewResponseDto;
 import greencity.dto.event.EventResponseDto;
+import greencity.dto.event.EventSearchSuggestionResponseDto;
 import greencity.dto.user.UserVO;
+import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.exception.handler.CustomExceptionHandler;
@@ -253,5 +256,105 @@ class EventControllerTest {
                         .principal(principal)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getSearchSuggestions_validQuery_returnsOkWithList() throws Exception {
+        List<EventSearchSuggestionResponseDto> suggestions = List.of(
+                EventSearchSuggestionResponseDto.builder().id(1L).title("Summer Fest").build(),
+                EventSearchSuggestionResponseDto.builder().id(2L).title("Summer Run").build()
+        );
+
+        when(eventService.getSearchSuggestions("Summer")).thenReturn(suggestions);
+
+        mockMvc.perform(get(EVENTS_LINK + "/search/suggestions")
+                        .param("query", "Summer")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("Summer Fest"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].title").value("Summer Run"));
+
+        verify(eventService, times(1)).getSearchSuggestions("Summer");
+    }
+
+    @Test
+    void getSearchSuggestions_queryTooLong_returnsBadRequest() throws Exception {
+        String longQuery = "a".repeat(65);
+
+        when(eventService.getSearchSuggestions(longQuery))
+                .thenThrow(new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG));
+
+        mockMvc.perform(get(EVENTS_LINK + "/search/suggestions")
+                        .param("query", longQuery)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(eventService, times(1)).getSearchSuggestions(longQuery);
+    }
+
+    @Test
+    void getSearchSuggestions_noResults_returnsOkWithEmptyList() throws Exception {
+        when(eventService.getSearchSuggestions("xyz")).thenReturn(List.of());
+
+        mockMvc.perform(get(EVENTS_LINK + "/search/suggestions")
+                        .param("query", "xyz")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(eventService, times(1)).getSearchSuggestions("xyz");
+    }
+
+    @Test
+    void searchEvents_validQuery_returnsOkWithList() throws Exception {
+        List<EventPreviewResponseDto> results = List.of(
+                EventPreviewResponseDto.builder().id(1L).title("Summer Fest").build(),
+                EventPreviewResponseDto.builder().id(2L).title("Summer Run").build()
+        );
+
+        when(eventService.searchEvents("Summer")).thenReturn(results);
+
+        mockMvc.perform(get(EVENTS_LINK + "/search")
+                        .param("query", "Summer")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].title").value("Summer Fest"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].title").value("Summer Run"));
+
+        verify(eventService, times(1)).searchEvents("Summer");
+    }
+
+    @Test
+    void searchEvents_queryTooLong_returnsBadRequest() throws Exception {
+        String longQuery = "a".repeat(65);
+
+        when(eventService.searchEvents(longQuery))
+                .thenThrow(new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG));
+
+        mockMvc.perform(get(EVENTS_LINK + "/search")
+                        .param("query", longQuery)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(eventService, times(1)).searchEvents(longQuery);
+    }
+
+    @Test
+    void searchEvents_noResults_returnsOkWithEmptyList() throws Exception {
+        when(eventService.searchEvents("xyz")).thenReturn(List.of());
+
+        mockMvc.perform(get(EVENTS_LINK + "/search")
+                        .param("query", "xyz")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+
+        verify(eventService, times(1)).searchEvents("xyz");
     }
 }

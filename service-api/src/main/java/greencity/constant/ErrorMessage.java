@@ -139,6 +139,7 @@ public final class ErrorMessage {
     public static final String INVALID_IMAGE_TYPE = "Invalid image type. Only JPEG and PNG are allowed.";
     public static final String EVENT_NOT_FOUND_BY_ID = "The event does not exist by this id: ";
     public static final String NOTIFICATION_NOT_FOUND_BY_ID = "Notification not found by id: ";
+    public static final String SEARCH_QUERY_TOO_LONG = "Search query must not exceed 64 characters.";
 
     private ErrorMessage() {
     }

@@ -13,13 +13,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,7 +26,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
-@Validated
 public class EventController {
 
     private final EventService eventService;
@@ -124,7 +121,7 @@ public class EventController {
     })
     @GetMapping("/search/suggestions")
     public ResponseEntity<List<EventSearchSuggestionResponseDto>> getSearchSuggestions(
-            @Size(max = 64) @RequestParam String query) {
+            @RequestParam String query) {
         return ResponseEntity.ok(eventService.getSearchSuggestions(query));
     }
 
@@ -142,7 +139,7 @@ public class EventController {
     })
     @GetMapping("/search")
     public ResponseEntity<List<EventPreviewResponseDto>> searchEvents(
-            @Size(max = 64) @RequestParam String query) {
+            @RequestParam String query) {
         return ResponseEntity.ok(eventService.searchEvents(query));
     }
 }
