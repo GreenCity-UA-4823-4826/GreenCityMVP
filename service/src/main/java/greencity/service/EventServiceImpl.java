@@ -3,9 +3,7 @@ package greencity.service;
 import greencity.constant.AppConstant;
 import greencity.constant.ErrorMessage;
 import greencity.dto.PageableDto;
-import greencity.dto.event.EventCreateRequestDto;
-import greencity.dto.event.EventResponseDto;
-import greencity.dto.event.MyEventResponseDto;
+import greencity.dto.event.*;
 import greencity.dto.user.UserVO;
 import greencity.entity.User;
 import greencity.entity.event.Event;
@@ -15,9 +13,7 @@ import greencity.enums.Role;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
-import greencity.mapping.event.EventCreateRequestDtoMapper;
-import greencity.mapping.event.EventResponseDtoMapper;
-import greencity.mapping.event.MyEventResponseDtoMapper;
+import greencity.mapping.event.*;
 import greencity.repository.EventAttendanceRepo;
 import greencity.repository.EventRepo;
 import greencity.repository.UserRepo;
@@ -45,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final EventResponseDtoMapper eventResponseDtoMapper;
     private final EventAttendanceRepo attendanceRepo;
     private final MyEventResponseDtoMapper myEventResponseDtoMapper;
+    private final EventPreviewResponseDtoMapper eventPreviewResponseDtoMapper;
 
     @Override
     @Transactional
@@ -122,6 +119,25 @@ public class EventServiceImpl implements EventService {
                 pageable.getPageNumber(),
                 (int) Math.ceil((double) result.size() / pageable.getPageSize())
         );
+    }
+
+    @Override
+    public List<EventSearchSuggestionResponseDto> getSearchSuggestions(String query) {
+        List<Object[]> events = eventRepo.findTitleSuggestions(query);
+        return events.stream()
+                .map(row -> EventSearchSuggestionResponseDto.builder()
+                        .id((Long) row[0])
+                        .title((String) row[1])
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public List<EventPreviewResponseDto> searchEvents(String query) {
+        List<Event> events = eventRepo.searchByTitle(query);
+        return events.stream()
+                .map(eventPreviewResponseDtoMapper::toDto)
+                .toList();
     }
 
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
