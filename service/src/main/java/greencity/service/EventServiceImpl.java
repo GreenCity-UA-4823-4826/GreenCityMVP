@@ -123,6 +123,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventSearchSuggestionResponseDto> getSearchSuggestions(String query) {
+        if (query.length() < 3) {
+            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_SHORT);
+        }
         if (query.length() > 64) {
             throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
         }
@@ -131,6 +134,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventPreviewResponseDto> searchEvents(String query) {
+        if (query.length() < 3) {
+            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_SHORT);
+        }
         if (query.length() > 64) {
             throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
         }
