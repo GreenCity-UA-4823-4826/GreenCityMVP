@@ -117,6 +117,7 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
                     content = @Content(schema = @Schema(implementation = EventSearchSuggestionResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
             @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/search/suggestions")
@@ -135,6 +136,7 @@ public class EventController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
                     content = @Content(schema = @Schema(implementation = EventPreviewResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
             @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/search")
