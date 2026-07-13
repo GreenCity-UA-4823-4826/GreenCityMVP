@@ -1,5 +1,6 @@
 package greencity.repository;
 
+import greencity.dto.event.EventSearchSuggestionResponseDto;
 import greencity.entity.event.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,11 +21,11 @@ public interface EventRepo extends JpaRepository<Event, Long> {
             "ELSE 3 END")
     List<Event> searchByTitle(@Param("query") String query);
 
-    @Query("SELECT e.id, e.title FROM Event e " +
+    @Query("SELECT new greencity.dto.event.EventSearchSuggestionResponseDto(e.id, e.title) FROM Event e " +
             "WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "ORDER BY CASE " +
             "WHEN LOWER(e.title) = LOWER(:query) THEN 1 " +
             "WHEN LOWER(e.title) LIKE LOWER(CONCAT(:query, '%')) THEN 2 " +
             "ELSE 3 END")
-    List<Object[]> findTitleSuggestions(@Param("query") String query);
+    List<EventSearchSuggestionResponseDto> findTitleSuggestions(@Param("query") String query);
 }

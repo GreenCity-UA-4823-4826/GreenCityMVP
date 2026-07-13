@@ -126,13 +126,7 @@ public class EventServiceImpl implements EventService {
         if (query.length() > 64) {
             throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
         }
-        List<Object[]> events = eventRepo.findTitleSuggestions(query);
-        return events.stream()
-                .map(row -> EventSearchSuggestionResponseDto.builder()
-                        .id((Long) row[0])
-                        .title((String) row[1])
-                        .build())
-                .toList();
+        return eventRepo.findTitleSuggestions(query);
     }
 
     @Override
