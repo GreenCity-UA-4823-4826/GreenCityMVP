@@ -123,23 +123,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventSearchSuggestionResponseDto> getSearchSuggestions(String query) {
-        if (query.length() < 3) {
-            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_SHORT);
-        }
-        if (query.length() > 64) {
-            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
-        }
+        validateSearchQueryLength(query);
         return eventRepo.findTitleSuggestions(query);
     }
 
     @Override
     public List<EventPreviewResponseDto> searchEvents(String query) {
-        if (query.length() < 3) {
-            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_SHORT);
-        }
-        if (query.length() > 64) {
-            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
-        }
+        validateSearchQueryLength(query);
         List<Event> events = eventRepo.searchByTitle(query);
         return events.stream()
                 .map(eventPreviewResponseDtoMapper::toDto)
@@ -188,6 +178,15 @@ public class EventServiceImpl implements EventService {
         }
         if (!new ImageSizeValidator().isValid(image, null)) {
             throw new BadRequestException(ErrorMessage.IMAGE_SIZE_EXCEEDED);
+        }
+    }
+
+    private void validateSearchQueryLength(String query) {
+        if (query.length() < 3) {
+            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_SHORT);
+        }
+        if (query.length() > 64) {
+            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
         }
     }
 }
