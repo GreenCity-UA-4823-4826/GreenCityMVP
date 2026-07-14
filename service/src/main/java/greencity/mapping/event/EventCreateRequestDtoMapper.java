@@ -28,8 +28,8 @@ public class EventCreateRequestDtoMapper {
         event.setOnlineLink(dto.getOnlineLink());
 
         List<EventDate> eventDates = dto.getDates().stream()
-                .map(this::toEventDate)
-                .collect(Collectors.toList());
+            .map(this::toEventDate)
+            .collect(Collectors.toList());
         eventDates.forEach(date -> date.setEvent(event));
         event.setDates(eventDates);
 
