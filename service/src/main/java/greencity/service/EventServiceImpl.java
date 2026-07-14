@@ -20,6 +20,7 @@ import greencity.repository.UserRepo;
 import greencity.validator.ImageSizeValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -128,12 +129,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventPreviewResponseDto> searchEvents(String query) {
+    public Page<EventPreviewResponseDto> searchEvents(String query, Pageable pageable) {
         validateSearchQueryLength(query);
-        List<Event> events = eventRepo.searchByTitle(query);
-        return events.stream()
-                .map(eventPreviewResponseDtoMapper::toDto)
-                .toList();
+        return eventRepo.searchByTitle(query, pageable)
+                .map(eventPreviewResponseDtoMapper::toDto);
     }
 
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {

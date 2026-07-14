@@ -26,8 +26,11 @@ import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -44,6 +47,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -72,12 +77,15 @@ class EventControllerTest {
 
     @BeforeEach
     void setUp() {
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+
         this.mockMvc = MockMvcBuilders
                 .standaloneSetup(eventController)
                 .setCustomArgumentResolvers(
                         new PageableHandlerMethodArgumentResolver(),
                         new UserArgumentResolver(userService, modelMapper))
                 .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
+                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
                 .build();
 
         when(errorAttributes.getErrorAttributes(any(), any(ErrorAttributeOptions.class)))
@@ -314,26 +322,27 @@ class EventControllerTest {
                 EventPreviewResponseDto.builder().id(1L).title("Summer Fest").build(),
                 EventPreviewResponseDto.builder().id(2L).title("Summer Run").build()
         );
+        Page<EventPreviewResponseDto> page = new PageImpl<>(results, PageRequest.of(0, 10), results.size());
 
-        when(eventService.searchEvents("Summer")).thenReturn(results);
+        when(eventService.searchEvents(anyString(), any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get(EVENTS_LINK + "/search")
                         .param("query", "Summer")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].title").value("Summer Fest"))
-                .andExpect(jsonPath("$[1].id").value(2L))
-                .andExpect(jsonPath("$[1].title").value("Summer Run"));
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[0].title").value("Summer Fest"))
+                .andExpect(jsonPath("$.content[1].id").value(2L))
+                .andExpect(jsonPath("$.content[1].title").value("Summer Run"));
 
-        verify(eventService, times(1)).searchEvents("Summer");
+        verify(eventService, times(1)).searchEvents(anyString(), any(Pageable.class));
     }
 
     @Test
     void searchEvents_queryTooLong_returnsBadRequest() throws Exception {
         String longQuery = "a".repeat(65);
 
-        when(eventService.searchEvents(longQuery))
+        when(eventService.searchEvents(anyString(), any(Pageable.class)))
                 .thenThrow(new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG));
 
         mockMvc.perform(get(EVENTS_LINK + "/search")
@@ -341,20 +350,22 @@ class EventControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        verify(eventService, times(1)).searchEvents(longQuery);
+        verify(eventService, times(1)).searchEvents(anyString(), any(Pageable.class));
     }
 
     @Test
     void searchEvents_noResults_returnsOkWithEmptyList() throws Exception {
-        when(eventService.searchEvents("xyz")).thenReturn(List.of());
+        Page<EventPreviewResponseDto> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
+
+        when(eventService.searchEvents(anyString(), any(Pageable.class))).thenReturn(emptyPage);
 
         mockMvc.perform(get(EVENTS_LINK + "/search")
                         .param("query", "xyz")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content").isEmpty());
 
-        verify(eventService, times(1)).searchEvents("xyz");
+        verify(eventService, times(1)).searchEvents(anyString(), any(Pageable.class));
     }
 }

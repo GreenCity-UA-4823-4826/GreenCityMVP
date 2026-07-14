@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,7 +21,7 @@ public interface EventRepo extends JpaRepository<Event, Long> {
             "WHEN LOWER(e.title) = LOWER(:query) THEN 1 " +
             "WHEN LOWER(e.title) LIKE LOWER(CONCAT(:query, '%')) THEN 2 " +
             "ELSE 3 END")
-    List<Event> searchByTitle(@Param("query") String query);
+    Page<Event> searchByTitle(@Param("query") String query, Pageable pageable);
 
     @Query("SELECT new greencity.dto.event.EventSearchSuggestionResponseDto(e.id, e.title) FROM Event e " +
             "WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%')) " +

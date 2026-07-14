@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -140,8 +142,10 @@ public class EventController {
             @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/search")
-    public ResponseEntity<List<EventPreviewResponseDto>> searchEvents(
+    public ResponseEntity<Page<EventPreviewResponseDto>> searchEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam String query) {
-        return ResponseEntity.ok(eventService.searchEvents(query));
+        return ResponseEntity.ok(eventService.searchEvents(query, PageRequest.of(page, size)));
     }
 }

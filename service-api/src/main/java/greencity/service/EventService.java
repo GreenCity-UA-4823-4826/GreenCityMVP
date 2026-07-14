@@ -7,6 +7,7 @@ import greencity.dto.event.MyEventResponseDto;
 import greencity.dto.event.EventPreviewResponseDto;
 import greencity.dto.event.EventSearchSuggestionResponseDto;
 import greencity.dto.user.UserVO;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.data.domain.Pageable;
@@ -63,7 +64,7 @@ public interface EventService {
      * Method for searching events by title.
      *
      * @param query - search string (minimum 3 characters).
-     * @return list of {@link EventPreviewResponseDto} sorted by relevance.
+     * @return {@link Page} of {@link EventPreviewResponseDto} sorted by relevance.
      */
-    List<EventPreviewResponseDto> searchEvents(String query);
+    Page<EventPreviewResponseDto> searchEvents(String query, Pageable pageable);
 }
