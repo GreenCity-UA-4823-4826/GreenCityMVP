@@ -15,6 +15,7 @@ import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.repository.EcoNewsCommentRepo;
 import greencity.repository.EcoNewsRepo;
+import greencity.event.CommentReplyNotificationEvent;
 import greencity.event.EcoNewsCommentNotificationEvent;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -84,6 +85,21 @@ public class EcoNewsCommentServiceImpl implements EcoNewsCommentService {
                 .ecoNewsId(econewsId)
                 .newsTitle(ecoNewsVO.getTitle())
                 .build());
+        }
+        if (addEcoNewsCommentDtoRequest.getParentCommentId() != 0) {
+            EcoNewsComment parentComment = ecoNewsCommentRepo
+                .findById(addEcoNewsCommentDtoRequest.getParentCommentId())
+                .orElseThrow(() -> new BadRequestException(ErrorMessage.COMMENT_NOT_FOUND_EXCEPTION));
+            UserVO parentAuthor = modelMapper.map(parentComment.getUser(), UserVO.class);
+            if (!userVO.getId().equals(parentAuthor.getId())) {
+                eventPublisher.publishEvent(CommentReplyNotificationEvent.builder()
+                    .targetUser(parentAuthor)
+                    .actionUser(userVO)
+                    .parentCommentId(parentComment.getId())
+                    .ecoNewsId(econewsId)
+                    .newsTitle(ecoNewsVO.getTitle())
+                    .build());
+            }
         }
         return modelMapper.map(savedComment, AddEcoNewsCommentDtoResponse.class);
     }

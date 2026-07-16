@@ -35,7 +35,7 @@ class EcoNewsCommentNotificationListenerTest {
         listener.onEcoNewsComment(event);
 
         verify(userNotificationService).createNotification(author, commenter,
-            NotificationType.ECONEWS_COMMENT, 1L, "title");
+            NotificationType.ECONEWS_COMMENT, 1L, "title", 1L);
     }
 
     @Test
