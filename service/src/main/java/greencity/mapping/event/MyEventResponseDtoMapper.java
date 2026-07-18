@@ -9,7 +9,6 @@ import greencity.entity.event.EventImage;
 import greencity.enums.event.EventAttendanceStatus;
 import greencity.enums.event.EventStatus;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class MyEventResponseDtoMapper {
-
     public MyEventResponseDto fromEvent(Event event) {
         return buildDto(event, null);
     }
@@ -28,18 +26,18 @@ public class MyEventResponseDtoMapper {
 
     private MyEventResponseDto buildDto(Event event, EventAttendanceStatus attendanceStatus) {
         return MyEventResponseDto.builder()
-                .id(event.getId())
-                .title(event.getTitle())
-                .organizerName(event.getOrganizer().getName())
-                .eventTypes(event.getEventTypes())
-                .mainImageUrl(resolveMainImageUrl(event.getImages()))
-                .visibility(event.getVisibility())
-                .location(event.getLocation())
-                .onlineLink(event.getOnlineLink())
-                .dates(mapDates(event.getDates()))
-                .eventStatus(resolveEventStatus(event.getDates()))
-                .attendanceStatus(attendanceStatus)
-                .build();
+            .id(event.getId())
+            .title(event.getTitle())
+            .organizerName(event.getOrganizer().getName())
+            .eventTypes(event.getEventTypes())
+            .mainImageUrl(resolveMainImageUrl(event.getImages()))
+            .visibility(event.getVisibility())
+            .location(event.getLocation())
+            .onlineLink(event.getOnlineLink())
+            .dates(mapDates(event.getDates()))
+            .eventStatus(resolveEventStatus(event.getDates()))
+            .attendanceStatus(attendanceStatus)
+            .build();
     }
 
     private EventStatus resolveEventStatus(List<EventDate> dates) {
@@ -81,22 +79,22 @@ public class MyEventResponseDtoMapper {
             return null;
         }
         return images.stream()
-                .filter(EventImage::isMainImage)
-                .map(EventImage::getImageUrl)
-                .findFirst()
-                .orElse(images.get(0).getImageUrl());
+            .filter(EventImage::isMainImage)
+            .map(EventImage::getImageUrl)
+            .findFirst()
+            .orElse(images.get(0).getImageUrl());
     }
 
     private List<EventDateDto> mapDates(List<EventDate> dates) {
         return dates.stream()
-                .map(date -> {
-                    EventDateDto dto = new EventDateDto();
-                    dto.setDate(date.getDate());
-                    dto.setStartTime(date.getStartTime());
-                    dto.setEndTime(date.getEndTime());
-                    dto.setAllDay(date.isAllDay());
-                    return dto;
-                })
-                .collect(Collectors.toList());
+            .map(date -> {
+                EventDateDto dto = new EventDateDto();
+                dto.setDate(date.getDate());
+                dto.setStartTime(date.getStartTime());
+                dto.setEndTime(date.getEndTime());
+                dto.setAllDay(date.isAllDay());
+                return dto;
+            })
+            .collect(Collectors.toList());
     }
 }

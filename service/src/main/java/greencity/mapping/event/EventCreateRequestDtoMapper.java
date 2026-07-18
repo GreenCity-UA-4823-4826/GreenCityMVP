@@ -6,13 +6,11 @@ import greencity.entity.event.Event;
 import greencity.entity.event.EventDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class EventCreateRequestDtoMapper {
-
     private final EventDateDtoMapper eventDateDtoMapper;
 
     public Event toEntity(EventCreateRequestDto dto, User organizer) {
@@ -29,8 +27,8 @@ public class EventCreateRequestDtoMapper {
         event.setOnlineLink(dto.getOnlineLink());
 
         List<EventDate> eventDates = dto.getDates().stream()
-                .map(eventDateDtoMapper::toEntity)
-                .toList();
+            .map(eventDateDtoMapper::toEntity)
+            .toList();
         eventDates.forEach(date -> date.setEvent(event));
         event.setDates(eventDates);
 
