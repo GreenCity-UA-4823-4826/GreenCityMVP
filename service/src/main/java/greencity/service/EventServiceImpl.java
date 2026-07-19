@@ -91,17 +91,20 @@ public class EventServiceImpl implements EventService {
         }
 
         List<UserVO> attendees = attendanceRepo.findByEventId(eventId).stream()
-                        .map(attendance -> modelMapper.map(attendance.getUser(), UserVO.class))
-                        .toList();
+                .map(attendance -> modelMapper.map(attendance.getUser(), UserVO.class))
+                .filter(attendee -> !attendee.getId().equals(userVO.getId()))
+                .toList();
         String eventTitle = event.getTitle();
-        eventPublisher.publishEvent(
-                EventDeletedNotificationEvent.builder()
-                        .organizer(userVO)
-                        .attendees(attendees)
-                        .eventId(eventId)
-                        .eventTitle(eventTitle)
-                        .build()
-        );
+        if (!attendees.isEmpty()) {
+            eventPublisher.publishEvent(
+                    EventDeletedNotificationEvent.builder()
+                            .organizer(userVO)
+                            .attendees(attendees)
+                            .eventId(eventId)
+                            .eventTitle(eventTitle)
+                            .build()
+            );
+        }
         eventRepo.delete(event);
     }
 
