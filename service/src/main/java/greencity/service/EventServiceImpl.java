@@ -1,5 +1,6 @@
 package greencity.service;
 
+import greencity.application.event.EventCreatedNotificationEvent;
 import greencity.constant.AppConstant;
 import greencity.constant.ErrorMessage;
 import greencity.dto.PageableDto;
@@ -13,8 +14,8 @@ import greencity.entity.event.EventAttendance;
 import greencity.entity.event.EventDate;
 import greencity.entity.event.EventImage;
 import greencity.enums.Role;
-import greencity.event.EventDeletedNotificationEvent;
-import greencity.event.EventUpdatedNotificationEvent;
+import greencity.application.event.EventDeletedNotificationEvent;
+import greencity.application.event.EventUpdatedNotificationEvent;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
@@ -71,6 +72,14 @@ public class EventServiceImpl implements EventService {
         event.setImages(eventImages);
 
         Event savedEvent = eventRepo.save(event);
+
+        eventPublisher.publishEvent(
+                EventCreatedNotificationEvent.builder()
+                        .organizer(userVO)
+                        .eventId(savedEvent.getId())
+                        .eventTitle(savedEvent.getTitle())
+                        .build()
+        );
 
         return eventResponseDtoMapper.convert(savedEvent);
     }
