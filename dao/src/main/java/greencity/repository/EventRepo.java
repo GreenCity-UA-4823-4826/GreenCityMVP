@@ -16,18 +16,18 @@ public interface EventRepo extends JpaRepository<Event, Long> {
     List<Event> findByOrganizerId(Long organizerId);
 
     @Query("SELECT e FROM Event e " +
-            "WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "WHERE e.title ILIKE CONCAT('%', :query, '%') " +
             "ORDER BY CASE " +
-            "WHEN LOWER(e.title) = LOWER(:query) THEN 1 " +
-            "WHEN LOWER(e.title) LIKE LOWER(CONCAT(:query, '%')) THEN 2 " +
+            "WHEN e.title ILIKE :query THEN 1 " +
+            "WHEN e.title ILIKE CONCAT(:query, '%') THEN 2 " +
             "ELSE 3 END")
     Page<Event> searchByTitle(@Param("query") String query, Pageable pageable);
 
     @Query("SELECT new greencity.dto.event.EventSearchSuggestionResponseDto(e.id, e.title) FROM Event e " +
-            "WHERE LOWER(e.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "WHERE e.title ILIKE CONCAT('%', :query, '%') " +
             "ORDER BY CASE " +
-            "WHEN LOWER(e.title) = LOWER(:query) THEN 1 " +
-            "WHEN LOWER(e.title) LIKE LOWER(CONCAT(:query, '%')) THEN 2 " +
+            "WHEN e.title ILIKE :query THEN 1 " +
+            "WHEN e.title ILIKE CONCAT(:query, '%') THEN 2 " +
             "ELSE 3 END")
     List<EventSearchSuggestionResponseDto> findTitleSuggestions(@Param("query") String query);
 }
