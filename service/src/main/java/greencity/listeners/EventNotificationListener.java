@@ -1,8 +1,8 @@
 package greencity.listeners;
 
 import greencity.enums.NotificationType;
-import greencity.event.EventDeletedNotificationEvent;
-import greencity.event.EventUpdatedNotificationEvent;
+import greencity.application.event.EventDeletedNotificationEvent;
+import greencity.application.event.EventUpdatedNotificationEvent;
 import greencity.service.UserNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

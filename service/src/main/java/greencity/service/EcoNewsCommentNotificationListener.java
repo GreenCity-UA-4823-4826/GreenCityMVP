@@ -1,6 +1,6 @@
 package greencity.service;
 
-import greencity.event.EcoNewsCommentNotificationEvent;
+import greencity.application.event.EcoNewsCommentNotificationEvent;
 import greencity.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

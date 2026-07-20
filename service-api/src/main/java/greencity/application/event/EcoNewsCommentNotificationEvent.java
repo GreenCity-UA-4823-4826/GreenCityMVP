@@ -1,4 +1,4 @@
-package greencity.event;
+package greencity.application.event;
 
 import greencity.dto.user.UserVO;
 import lombok.AllArgsConstructor;

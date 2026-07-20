@@ -13,7 +13,7 @@ import greencity.enums.Role;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
-import greencity.event.EcoNewsCommentNotificationEvent;
+import greencity.application.event.EcoNewsCommentNotificationEvent;
 import greencity.repository.EcoNewsCommentRepo;
 import greencity.repository.EcoNewsRepo;
 import org.junit.jupiter.api.Assertions;
