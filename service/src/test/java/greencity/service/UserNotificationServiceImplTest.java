@@ -218,12 +218,14 @@ class UserNotificationServiceImplTest {
     }
 
     @Test
-    void deleteNotification_NotificationBelongsToUser_DeletesNotification() {
+    void deleteNotification_NotificationBelongsToUser_DeletesNotificationAndSendsUnreadCount() {
         when(notificationRepo.existsByIdAndTargetUserId(1L, 1L)).thenReturn(true);
+        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(0L);
 
         userNotificationService.deleteNotification(1L, 1L);
 
         verify(notificationRepo).deleteNotificationByIdAndTargetUserId(1L, 1L);
+        verify(messagingTemplate).convertAndSend("/topic/1/notification", 0L);
     }
 
     @Test
