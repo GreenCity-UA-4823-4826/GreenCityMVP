@@ -21,4 +21,8 @@ public class NewsSubscriber {
     @Column(name = "unsubscribe_token", nullable = false, unique = true)
     private String unsubscribeToken;
 
+    @Builder.Default
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
 }
