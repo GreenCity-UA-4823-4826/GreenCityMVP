@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.List;
 
 import static greencity.constant.ErrorMessage.NEWS_SUBSCRIBER_EXIST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -111,5 +112,21 @@ class NewsSubscriberServiceImplTest {
             () -> newsSubscriberService.unsubscribe("invalid"));
 
         verify(newsSubscriberRepo, never()).save(org.mockito.ArgumentMatchers.any(NewsSubscriber.class));
+    }
+
+    @Test
+    void findAllActiveSubscribersMapsRepositoryResult() {
+        NewsSubscriber subscriber = NewsSubscriber.builder()
+            .email(EMAIL)
+            .unsubscribeToken("token")
+            .active(true)
+            .build();
+        when(newsSubscriberRepo.findAllByActiveTrue()).thenReturn(List.of(subscriber));
+
+        var result = newsSubscriberService.findAllActiveSubscribers();
+
+        assertEquals(1, result.size());
+        assertEquals(EMAIL, result.getFirst().getEmail());
+        assertEquals("token", result.getFirst().getUnsubscribeToken());
     }
 }

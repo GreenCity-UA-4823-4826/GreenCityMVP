@@ -1,11 +1,13 @@
 package greencity.message;
 
 import greencity.dto.econews.AddEcoNewsDtoResponse;
+import greencity.dto.newssubscriber.NewsSubscriberResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Message, that is used for sending emails about adding new eco news.
@@ -15,5 +17,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class AddEcoNewsMessage implements Serializable {
+    private List<NewsSubscriberResponseDto> subscribers;
     private AddEcoNewsDtoResponse addEcoNewsDtoResponse;
 }

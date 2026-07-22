@@ -8,6 +8,7 @@ import greencity.dto.user.*;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.message.SendHabitNotification;
+import greencity.message.AddEcoNewsMessage;
 import greencity.message.SendReportEmailMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -346,11 +347,20 @@ public class RestClient {
      * @author Taras Kavkalo
      */
     public void addEcoNews(EcoNewsForSendEmailDto message) {
-        HttpHeaders headers = new HttpHeaders();
+        HttpHeaders headers = setHeader();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<EcoNewsForSendEmailDto> entity = new HttpEntity<>(message, headers);
         restTemplate.exchange(greenCityUserServerAddress
             + RestTemplateLinks.ADD_ECO_NEWS, HttpMethod.POST, entity, Object.class)
+            .getBody();
+    }
+
+    public void sendNewsletter(AddEcoNewsMessage message) {
+        HttpHeaders headers = setHeader();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AddEcoNewsMessage> entity = new HttpEntity<>(message, headers);
+        restTemplate.exchange(greenCityUserServerAddress
+            + RestTemplateLinks.SEND_NEWSLETTER, HttpMethod.POST, entity, Object.class)
             .getBody();
     }
 

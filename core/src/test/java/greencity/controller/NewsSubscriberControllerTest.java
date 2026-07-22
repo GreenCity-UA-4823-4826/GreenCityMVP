@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,6 +79,15 @@ class NewsSubscriberControllerTest {
     void unsubscribeReturnsNoContent() throws Exception {
         mockMvc.perform(delete(URL + "/token"))
             .andExpect(status().isNoContent());
+
+        verify(newsSubscriberService).unsubscribe("token");
+    }
+
+    @Test
+    void unsubscribeByLinkReturnsConfirmationPage() throws Exception {
+        mockMvc.perform(get(URL + "/unsubscribe")
+            .param("token", "token"))
+            .andExpect(status().isOk());
 
         verify(newsSubscriberService).unsubscribe("token");
     }

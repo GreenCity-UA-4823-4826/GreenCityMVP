@@ -1,11 +1,13 @@
 package greencity.service;
 
 import greencity.entity.NewsSubscriber;
+import greencity.dto.newssubscriber.NewsSubscriberResponseDto;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.repository.NewsSubscriberRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.Locale;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import static greencity.constant.ErrorMessage.NEWS_SUBSCRIBER_EXIST;
@@ -47,5 +49,13 @@ public class NewsSubscriberServiceImpl implements NewsSubscriberService {
 
         subscriber.setActive(false);
         newsSubscriberRepo.save(subscriber);
+    }
+
+    @Override
+    public List<NewsSubscriberResponseDto> findAllActiveSubscribers() {
+        return newsSubscriberRepo.findAllByActiveTrue().stream()
+            .map(subscriber -> new NewsSubscriberResponseDto(
+                subscriber.getEmail(), subscriber.getUnsubscribeToken()))
+            .toList();
     }
 }
