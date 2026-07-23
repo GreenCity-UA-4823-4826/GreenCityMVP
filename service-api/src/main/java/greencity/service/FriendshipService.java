@@ -17,12 +17,18 @@ public interface FriendshipService {
     /**
      * Method for searching users by name.
      *
-     * @param userVO   - current authorized user.
-     * @param query    - search string to filter by name.
-     * @param pageable - pagination parameters.
+     * @param userVO                  - current authorized user.
+     * @param query                   - search string to filter by name.
+     * @param filterByCity            - if true, returns only users from the same city.
+     * @param filterByFriendsOfFriends - if true, returns only friends of current user's friends.
+     * @param pageable                - pagination parameters.
      * @return {@link Page} of {@link UserFriendDto}.
      */
-    Page<UserFriendDto> searchFriends(UserVO userVO, String query, Pageable pageable);
+    Page<UserFriendDto> searchFriends(UserVO userVO,
+                                      String query,
+                                      Boolean filterByCity,
+                                      Boolean filterByFriendsOfFriends,
+                                      Pageable pageable);
 
     /**
      * Method for sending a friend request to another user.

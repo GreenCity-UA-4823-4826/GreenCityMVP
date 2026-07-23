@@ -52,73 +52,116 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
      * Excludes current user and already accepted friends.
      * Returns mutual friends count, friendship status and
      * whether current user sent the request.
+     * Optionally filters by city and/or friends of friends.
      *
-     * @param currentUserId - id of the current user.
-     * @param query         - search string to filter by name.
-     * @param pageable      - pagination parameters.
+     * @param currentUserId           - id of the current user.
+     * @param query                   - search string to filter by name.
+     * @param filterByCity            - if true, returns only users from the same city.
+     * @param filterByFriendsOfFriends - if true, returns only friends of current user's friends.
+     * @param pageable                - pagination parameters.
      * @return {@link Page} of {@link Object[]} with user data.
      */
     @Query(value = """
-        SELECT
-            u.id,
-            u.name,
-            u.profile_picture AS profilePicturePath,
-            u.rating,
-            u.city,
-            (SELECT COUNT(*)
-             FROM friendships mf
-             WHERE mf.friendship_status = 'ACCEPTED'
-               AND ((mf.requester_id = u.id AND mf.receiver_id IN (
-                       SELECT CASE WHEN f2.requester_id = :currentUserId
-                                   THEN f2.receiver_id ELSE f2.requester_id END
-                       FROM friendships f2
-                       WHERE (f2.requester_id = :currentUserId OR f2.receiver_id = :currentUserId)
-                         AND f2.friendship_status = 'ACCEPTED'))
-                 OR (mf.receiver_id = u.id AND mf.requester_id IN (
-                       SELECT CASE WHEN f2.requester_id = :currentUserId
-                                   THEN f2.receiver_id ELSE f2.requester_id END
-                       FROM friendships f2
-                       WHERE (f2.requester_id = :currentUserId OR f2.receiver_id = :currentUserId)
-                         AND f2.friendship_status = 'ACCEPTED')))
-            ) AS mutualFriendsCount,
-            (SELECT f.friendship_status
-             FROM friendships f
-             WHERE (f.requester_id = :currentUserId AND f.receiver_id = u.id)
-                OR (f.receiver_id = :currentUserId AND f.requester_id = u.id)
-             LIMIT 1) AS friendshipStatus,
-            CASE WHEN EXISTS (
-                SELECT 1 FROM friendships f
-                WHERE f.requester_id = :currentUserId AND f.receiver_id = u.id
-            ) THEN true ELSE false END AS requestedByCurrentUser
-        FROM users u
-        WHERE u.id != :currentUserId
-          AND NOT EXISTS (
-              SELECT 1 FROM friendships f
-              WHERE ((f.requester_id = :currentUserId AND f.receiver_id = u.id)
-                  OR (f.receiver_id = :currentUserId AND f.requester_id = u.id))
-                AND f.friendship_status = 'ACCEPTED'
-          )
-          AND LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%'))
-        ORDER BY
-          CASE
-            WHEN LOWER(u.name) LIKE LOWER(CONCAT(:query, '%')) THEN 0
-            ELSE 1
-          END
-        """,
+    SELECT
+        u.id,
+        u.name,
+        u.profile_picture AS profilePicturePath,
+        u.rating,
+        u.city,
+        (SELECT COUNT(*)
+         FROM friendships mf
+         WHERE mf.friendship_status = 'ACCEPTED'
+           AND ((mf.requester_id = u.id AND mf.receiver_id IN (
+                   SELECT CASE WHEN f2.requester_id = :currentUserId
+                               THEN f2.receiver_id ELSE f2.requester_id END
+                   FROM friendships f2
+                   WHERE (f2.requester_id = :currentUserId OR f2.receiver_id = :currentUserId)
+                     AND f2.friendship_status = 'ACCEPTED'))
+             OR (mf.receiver_id = u.id AND mf.requester_id IN (
+                   SELECT CASE WHEN f2.requester_id = :currentUserId
+                               THEN f2.receiver_id ELSE f2.requester_id END
+                   FROM friendships f2
+                   WHERE (f2.requester_id = :currentUserId OR f2.receiver_id = :currentUserId)
+                     AND f2.friendship_status = 'ACCEPTED')))
+        ) AS mutualFriendsCount,
+        (SELECT f.friendship_status
+         FROM friendships f
+         WHERE (f.requester_id = :currentUserId AND f.receiver_id = u.id)
+            OR (f.receiver_id = :currentUserId AND f.requester_id = u.id)
+         LIMIT 1) AS friendshipStatus,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM friendships f
+            WHERE f.requester_id = :currentUserId AND f.receiver_id = u.id
+        ) THEN true ELSE false END AS requestedByCurrentUser
+    FROM users u
+    WHERE u.id != :currentUserId
+      AND NOT EXISTS (
+          SELECT 1 FROM friendships f
+          WHERE ((f.requester_id = :currentUserId AND f.receiver_id = u.id)
+              OR (f.receiver_id = :currentUserId AND f.requester_id = u.id))
+            AND f.friendship_status = 'ACCEPTED'
+      )
+      AND LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%'))
+      AND (:filterByCity = false OR u.city = (
+          SELECT city FROM users WHERE id = :currentUserId
+      ))
+      AND (:filterByFriendsOfFriends = false OR EXISTS (
+          SELECT 1 FROM friendships f3
+          WHERE f3.friendship_status = 'ACCEPTED'
+            AND ((f3.requester_id = u.id AND f3.receiver_id IN (
+                    SELECT CASE WHEN f4.requester_id = :currentUserId
+                                THEN f4.receiver_id ELSE f4.requester_id END
+                    FROM friendships f4
+                    WHERE (f4.requester_id = :currentUserId OR f4.receiver_id = :currentUserId)
+                      AND f4.friendship_status = 'ACCEPTED'))
+              OR (f3.receiver_id = u.id AND f3.requester_id IN (
+                    SELECT CASE WHEN f4.requester_id = :currentUserId
+                                THEN f4.receiver_id ELSE f4.requester_id END
+                    FROM friendships f4
+                    WHERE (f4.requester_id = :currentUserId OR f4.receiver_id = :currentUserId)
+                      AND f4.friendship_status = 'ACCEPTED')))
+      ))
+    ORDER BY
+      CASE
+        WHEN LOWER(u.name) LIKE LOWER(CONCAT(:query, '%')) THEN 0
+        ELSE 1
+      END
+    """,
             countQuery = """
-        SELECT COUNT(*) FROM users u
-        WHERE u.id != :currentUserId
-          AND NOT EXISTS (
-              SELECT 1 FROM friendships f
-              WHERE ((f.requester_id = :currentUserId AND f.receiver_id = u.id)
-                  OR (f.receiver_id = :currentUserId AND f.requester_id = u.id))
-                AND f.friendship_status = 'ACCEPTED'
-          )
-          AND LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%'))
-        """,
+    SELECT COUNT(*) FROM users u
+    WHERE u.id != :currentUserId
+      AND NOT EXISTS (
+          SELECT 1 FROM friendships f
+          WHERE ((f.requester_id = :currentUserId AND f.receiver_id = u.id)
+              OR (f.receiver_id = :currentUserId AND f.requester_id = u.id))
+            AND f.friendship_status = 'ACCEPTED'
+      )
+      AND LOWER(u.name) LIKE LOWER(CONCAT('%', :query, '%'))
+      AND (:filterByCity = false OR u.city = (
+          SELECT city FROM users WHERE id = :currentUserId
+      ))
+      AND (:filterByFriendsOfFriends = false OR EXISTS (
+          SELECT 1 FROM friendships f3
+          WHERE f3.friendship_status = 'ACCEPTED'
+            AND ((f3.requester_id = u.id AND f3.receiver_id IN (
+                    SELECT CASE WHEN f4.requester_id = :currentUserId
+                                THEN f4.receiver_id ELSE f4.requester_id END
+                    FROM friendships f4
+                    WHERE (f4.requester_id = :currentUserId OR f4.receiver_id = :currentUserId)
+                      AND f4.friendship_status = 'ACCEPTED'))
+              OR (f3.receiver_id = u.id AND f3.requester_id IN (
+                    SELECT CASE WHEN f4.requester_id = :currentUserId
+                                THEN f4.receiver_id ELSE f4.requester_id END
+                    FROM friendships f4
+                    WHERE (f4.requester_id = :currentUserId OR f4.receiver_id = :currentUserId)
+                      AND f4.friendship_status = 'ACCEPTED')))
+      ))
+    """,
             nativeQuery = true)
     Page<Object[]> searchUsers(
             @Param("currentUserId") Long currentUserId,
             @Param("query") String query,
+            @Param("filterByCity") Boolean filterByCity,
+            @Param("filterByFriendsOfFriends") Boolean filterByFriendsOfFriends,
             Pageable pageable);
 }

@@ -62,8 +62,11 @@ public class FriendshipController {
         @RequestParam
         @Size(min = 1, max = 30)
         @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄ'. ]+$") String query,
+        @RequestParam(required = false, defaultValue = "false") Boolean filterByCity,
+        @RequestParam(required = false, defaultValue = "false") Boolean filterByFriendsOfFriends,
         Pageable pageable) {
-        return ResponseEntity.ok(friendshipService.searchFriends(userVO, query, pageable));
+        return ResponseEntity.ok(
+                friendshipService.searchFriends(userVO, query, filterByCity, filterByFriendsOfFriends, pageable));
     }
 
     /**

@@ -109,7 +109,7 @@ class FriendshipControllerTest {
                 .build();
 
         when(userService.findByEmail(anyString())).thenReturn(userVO);
-        when(friendshipService.searchFriends(any(), anyString(), any()))
+        when(friendshipService.searchFriends(any(), anyString(), any(), any(), any()))  // ← 5 параметрів
                 .thenReturn(new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get(FRIENDS_LINK + "/search")
@@ -121,7 +121,7 @@ class FriendshipControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(friendshipService, times(1)).searchFriends(any(), anyString(), any());
+        verify(friendshipService, times(1)).searchFriends(any(), anyString(), any(), any(), any());  // ← 5 параметрів
     }
 
     @Test

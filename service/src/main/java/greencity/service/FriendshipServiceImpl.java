@@ -29,9 +29,9 @@ public class FriendshipServiceImpl implements FriendshipService{
     }
 
     @Override
-    public Page<UserFriendDto> searchFriends(UserVO userVO, String query, Pageable pageable) {
+    public Page<UserFriendDto> searchFriends(UserVO userVO, String query, Boolean filterByCity, Boolean filterByFriendsOfFriends, Pageable pageable) {
         Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-        return friendshipRepo.searchUsers(userVO.getId(), query, unsorted)
+        return friendshipRepo.searchUsers(userVO.getId(), query, filterByCity, filterByFriendsOfFriends, unsorted)
                 .map(userFriendDtoMapper::toDto);
     }
 
