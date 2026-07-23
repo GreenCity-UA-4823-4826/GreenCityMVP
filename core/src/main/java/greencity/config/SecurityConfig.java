@@ -46,6 +46,7 @@ public class SecurityConfig {
     private static final String CUSTOM_SHOPPING_LIST_ITEMS = "/{userId}/custom-shopping-list-items";
     private static final String HABIT_ASSIGN_ID = "/habit/assign/{habitId}";
     private static final String USER_SHOPPING_LIST = "/user/shopping-list-items";
+    private static final String FRIENDS = "/friends";
     private final JwtTool jwtTool;
     private final UserService userService;
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -195,7 +196,8 @@ public class SecurityConfig {
                     "/habit/search",
                     "/habit/{habitId}/friends/profile-pictures",
                     "/events/myEvents",
-                    "/friends/count")
+                    FRIENDS + "/count",
+                    FRIENDS + "/search")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
                     "/category",
@@ -218,7 +220,8 @@ public class SecurityConfig {
                     "/user/{userId}/habit",
                     "/habit/custom",
                     "/custom/shopping-list-items/{userId}/{habitId}/custom-shopping-list-items",
-                    "/events")
+                    "/events",
+                    FRIENDS + "/{receiverId}")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PUT,
                     "/habit/statistic/{id}",
@@ -254,7 +257,8 @@ public class SecurityConfig {
                     "/favorite_place/{placeId}",
                     "/social-networks",
                     USER_CUSTOM_SHOPPING_LIST_ITEMS,
-                    USER_SHOPPING_LIST + "/user-shopping-list-items")
+                    USER_SHOPPING_LIST + "/user-shopping-list-items",
+                    FRIENDS +"/{receiverId}")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.GET,
                     NOTIFICATIONS,
