@@ -156,9 +156,9 @@ class HabitStatisticControllerTest {
             any(AddHabitStatisticDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post(BASE_URL + "/{habitId}", 1L)
-                .principal(principal)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto)))
+            .principal(principal)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(1))
@@ -172,8 +172,8 @@ class HabitStatisticControllerTest {
     @Test
     void saveHabitStatistic_InvalidBody_ReturnsStatusBadRequest() throws Exception {
         mockMvc.perform(post(BASE_URL + "/{habitId}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
             .andExpect(status().isBadRequest());
     }
 
@@ -182,8 +182,8 @@ class HabitStatisticControllerTest {
         String json = "{\"amountOfItems\":17,\"habitRate\":\"GOOD\",\"createDate\":\"2024-01-01T10:00:00+00:00\"}";
 
         mockMvc.perform(post(BASE_URL + "/{habitId}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
             .andExpect(status().isBadRequest());
     }
 
@@ -201,9 +201,9 @@ class HabitStatisticControllerTest {
             any(UpdateHabitStatisticDto.class))).thenReturn(requestDto);
 
         mockMvc.perform(put(BASE_URL + "/{id}", 1L)
-                .principal(principal)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto)))
+            .principal(principal)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.amountOfItems").value(3))
@@ -216,8 +216,8 @@ class HabitStatisticControllerTest {
     @Test
     void updateStatistic_InvalidBody_ReturnsStatusBadRequest() throws Exception {
         mockMvc.perform(put(BASE_URL + "/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
             .andExpect(status().isBadRequest());
     }
 
@@ -226,8 +226,8 @@ class HabitStatisticControllerTest {
         String json = "{\"amountOfItems\":-1,\"habitRate\":\"GOOD\"}";
 
         mockMvc.perform(put(BASE_URL + "/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
             .andExpect(status().isBadRequest());
     }
 
@@ -241,7 +241,7 @@ class HabitStatisticControllerTest {
         when(habitStatisticService.getTodayStatisticsForAllHabitItems("en")).thenReturn(List.of(dto));
 
         mockMvc.perform(get(BASE_URL + "/todayStatisticsForAllHabitItems")
-                .header("Accept-Language", "en"))
+            .header("Accept-Language", "en"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$[0].habitItem").value("cup"))

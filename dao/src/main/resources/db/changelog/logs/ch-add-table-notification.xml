@@ -65,4 +65,11 @@
                                  referencedTableName="users"
                                  referencedColumnNames="id"/>
     </changeSet>
+
+    <changeSet id="ch-add-table-notification-4" author="GreenCityMVP">
+        <createIndex indexName="idx_notifications_target_user_time" tableName="notifications">
+            <column name="target_user_id"/>
+            <column name="time"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
