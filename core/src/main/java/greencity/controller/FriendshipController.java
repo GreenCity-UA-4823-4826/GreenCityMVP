@@ -9,14 +9,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Validated
 @RequiredArgsConstructor
 @RequestMapping("/friends")
 public class FriendshipController {
@@ -55,7 +58,7 @@ public class FriendshipController {
     @GetMapping("/search")
     public ResponseEntity<Page<UserFriendDto>> searchFriends(
         @Parameter(hidden = true) @CurrentUser UserVO userVO,
-        @RequestParam String query,
+        @RequestParam @Size(min = 1, max = 30)  String query,
         Pageable pageable) {
         return ResponseEntity.ok(friendshipService.searchFriends(userVO, query, pageable));
     }
