@@ -26,7 +26,7 @@ public class GoogleLoginController {
 
     @GetMapping("/success")
     public String loginSuccess(Authentication authentication, HttpServletRequest request,
-                               HttpServletResponse response) {
+        HttpServletResponse response) {
         // Handle successful Google login
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
@@ -49,8 +49,8 @@ public class GoogleLoginController {
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             authorizedClientService.removeAuthorizedClient(
-                    "google",
-                    authentication.getName());
+                "google",
+                authentication.getName());
         }
         return "redirect:/login";
     }
