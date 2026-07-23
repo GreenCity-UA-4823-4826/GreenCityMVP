@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,9 @@ public class FriendshipController {
     @GetMapping("/search")
     public ResponseEntity<Page<UserFriendDto>> searchFriends(
         @Parameter(hidden = true) @CurrentUser UserVO userVO,
-        @RequestParam @Size(min = 1, max = 30)  String query,
+        @RequestParam
+        @Size(min = 1, max = 30)
+        @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄ'. ]+$") String query,
         Pageable pageable) {
         return ResponseEntity.ok(friendshipService.searchFriends(userVO, query, pageable));
     }
