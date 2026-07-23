@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="create-friendships-table" author="Vdovych">
+        <createTable tableName="friendships">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="requester_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_friendships_requester"
+                             references="users(id)"/>
+            </column>
+
+            <column name="receiver_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_friendships_receiver"
+                             references="users(id)"/>
+            </column>
+
+            <column name="friendship_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_date" type="TIMESTAMP"/>
+
+        </createTable>
+
+        <sql>
+            CREATE UNIQUE INDEX uq_friendship_pair
+                ON friendships (LEAST(requester_id, receiver_id), GREATEST(requester_id, receiver_id));
+        </sql>
+
+    </changeSet>
+
+</databaseChangeLog>
