@@ -20,7 +20,7 @@ public interface UserNotificationService {
 
     void deleteNotification(Long userId, Long notificationId);
 
-    void unreadNotification(Long notificationId);
+    void unreadNotification(Long userId, Long notificationId);
 
-    void viewNotification(Long notificationId);
+    void viewNotification(Long userId, Long notificationId);
 }

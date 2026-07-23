@@ -1,5 +1,6 @@
 package greencity.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import greencity.ModelUtils;
 import greencity.converters.UserIdArgumentResolver;
 import greencity.dto.PageableAdvancedDto;
@@ -7,6 +8,8 @@ import greencity.dto.notification.NotificationDto;
 import greencity.dto.user.UserVO;
 import greencity.enums.NotificationType;
 import greencity.enums.ProjectName;
+import greencity.exception.exceptions.NotFoundException;
+import greencity.exception.handler.CustomExceptionHandler;
 import greencity.service.UserNotificationService;
 import greencity.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
@@ -29,6 +34,7 @@ import static greencity.ModelUtils.getPrincipal;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -53,6 +59,11 @@ class NotificationControllerTest {
     @Mock
     private Validator mockValidator;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
+    private final ErrorAttributes errorAttributes = new DefaultErrorAttributes();
+
     private final Principal principal = getPrincipal();
     private final UserVO userVO = ModelUtils.getUserVO();
 
@@ -61,6 +72,7 @@ class NotificationControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(notificationController)
             .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver(),
                 new UserIdArgumentResolver(userService))
+            .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
             .setValidator(mockValidator)
             .build();
     }
@@ -89,20 +101,48 @@ class NotificationControllerTest {
 
     @Test
     void viewNotification_ValidId_ReturnsOk() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
         mockMvc.perform(post(notificationLink + "/{notificationId}/viewNotification", 1L)
+            .principal(principal)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
-        verify(userNotificationService).viewNotification(1L);
+        verify(userNotificationService).viewNotification(1L, 1L);
+    }
+
+    @Test
+    void viewNotification_NotificationNotOwnedOrMissing_ReturnsNotFound() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+        doThrow(NotFoundException.class).when(userNotificationService).viewNotification(1L, 1L);
+
+        mockMvc.perform(post(notificationLink + "/{notificationId}/viewNotification", 1L)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 
     @Test
     void unreadNotification_ValidId_ReturnsOk() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
         mockMvc.perform(post(notificationLink + "/{notificationId}/unreadNotification", 1L)
+            .principal(principal)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
-        verify(userNotificationService).unreadNotification(1L);
+        verify(userNotificationService).unreadNotification(1L, 1L);
+    }
+
+    @Test
+    void unreadNotification_NotificationNotOwnedOrMissing_ReturnsNotFound() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+        doThrow(NotFoundException.class).when(userNotificationService).unreadNotification(1L, 1L);
+
+        mockMvc.perform(post(notificationLink + "/{notificationId}/unreadNotification", 1L)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -115,5 +155,16 @@ class NotificationControllerTest {
             .andExpect(status().isOk());
 
         verify(userNotificationService).deleteNotification(1L, 1L);
+    }
+
+    @Test
+    void deleteNotification_NotificationNotOwnedOrMissing_ReturnsNotFound() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+        doThrow(NotFoundException.class).when(userNotificationService).deleteNotification(1L, 1L);
+
+        mockMvc.perform(delete(notificationLink + "/{notificationId}", 1L)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 }

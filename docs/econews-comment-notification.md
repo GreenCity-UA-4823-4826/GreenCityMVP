@@ -168,12 +168,12 @@ view/unread/delete operations against unknown or foreign notification ids.
 
 | Test class | Module | Covers |
 |---|---|---|
-| `UserNotificationServiceImplTest` (13 tests) | service | filtering + templating (1/2/3+ commenters), merge vs. new-notification branching, dedup on repeat comment, delete/view/unread + `NotFoundException` paths, WebSocket push payloads |
+| `UserNotificationServiceImplTest` (15 tests) | service | filtering + templating (1/2/3+ commenters), merge vs. new-notification branching, dedup on repeat comment, delete/view/unread happy paths, ownership guard on delete/view/unread (`NotFoundException` for missing **and** foreign notification ids), WebSocket push payloads |
 | `EcoNewsCommentNotificationListenerTest` (2) | service | event → `createNotification` delegation; self-comment is ignored |
 | `EcoNewsCommentServiceImplTest` (+2 new, 25 total) | service | event is published when commenter ≠ author; **not** published when commenting on your own article |
 | `NotificationDtoMapperTest` (1) | service | entity → DTO field mapping |
-| `NotificationControllerTest` (4) | core | all 4 REST endpoints, `@CurrentUserId` resolution, response codes |
+| `NotificationControllerTest` (7) | core | all 4 REST endpoints, `@CurrentUserId` resolution, happy-path response codes, plus 404 responses for view/unread/delete when the notification is missing or owned by another user (via `CustomExceptionHandler` wired into the standalone MockMvc setup) |
 
-All 45 tests pass (`mvn test`, JDK 21 — see environment note below).
+All 50 tests pass (`mvn test`, JDK 21 — see environment note below).
 
 ---

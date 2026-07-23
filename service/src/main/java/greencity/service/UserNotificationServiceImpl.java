@@ -91,19 +91,19 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public void unreadNotification(Long notificationId) {
-        Notification notification = notificationRepo.findById(notificationId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
-        Long userId = notification.getTargetUser().getId();
+    public void unreadNotification(Long userId, Long notificationId) {
+        if (!notificationRepo.existsByIdAndTargetUserId(notificationId, userId)) {
+            throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
+        }
         notificationRepo.markNotificationAsNotViewed(notificationId);
         sendNotificationCount(userId);
     }
 
     @Override
-    public void viewNotification(Long notificationId) {
-        Notification notification = notificationRepo.findById(notificationId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
-        Long userId = notification.getTargetUser().getId();
+    public void viewNotification(Long userId, Long notificationId) {
+        if (!notificationRepo.existsByIdAndTargetUserId(notificationId, userId)) {
+            throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
+        }
         notificationRepo.markNotificationAsViewed(notificationId);
         sendNotificationCount(userId);
     }
