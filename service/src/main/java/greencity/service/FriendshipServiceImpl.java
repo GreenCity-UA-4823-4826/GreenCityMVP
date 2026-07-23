@@ -11,6 +11,7 @@ import greencity.mapping.UserFriendDtoMapper;
 import greencity.repository.FriendshipRepo;
 import greencity.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +57,11 @@ public class FriendshipServiceImpl implements FriendshipService{
         friendship.setReceiver(receiver);
         friendship.setFriendshipStatus(FriendshipStatus.PENDING);
 
-        friendshipRepo.save(friendship);
+        try {
+            friendshipRepo.save(friendship);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Friendship already exists between these users");
+        }
     }
 
     @Override
