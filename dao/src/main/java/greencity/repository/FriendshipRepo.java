@@ -121,11 +121,13 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
                     WHERE (f4.requester_id = :currentUserId OR f4.receiver_id = :currentUserId)
                       AND f4.friendship_status = 'ACCEPTED')))
       ))
-    ORDER BY
+            ORDER BY
       CASE
         WHEN LOWER(u.name) LIKE LOWER(CONCAT(:query, '%')) THEN 0
         ELSE 1
-      END
+      END,
+      u.name,
+      u.id
     """,
             countQuery = """
     SELECT COUNT(*) FROM users u
