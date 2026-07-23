@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/friends")
 public class FriendshipController {
-
     private final FriendshipService friendshipService;
 
     /**
@@ -31,12 +30,12 @@ public class FriendshipController {
      */
     @Operation(summary = "Get count of current user's friends")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
-            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/count")
     public ResponseEntity<Long> getFriendsCount(
-            @Parameter(hidden = true) @CurrentUser UserVO userVO) {
+        @Parameter(hidden = true) @CurrentUser UserVO userVO) {
         return ResponseEntity.ok(friendshipService.countOfUserFriends(userVO));
     }
 
@@ -50,14 +49,14 @@ public class FriendshipController {
      */
     @Operation(summary = "Search users by name")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
-            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/search")
     public ResponseEntity<Page<UserFriendDto>> searchFriends(
-            @Parameter(hidden = true) @CurrentUser UserVO userVO,
-            @RequestParam String query,
-            Pageable pageable) {
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        @RequestParam String query,
+        Pageable pageable) {
         return ResponseEntity.ok(friendshipService.searchFriends(userVO, query, pageable));
     }
 
@@ -70,15 +69,15 @@ public class FriendshipController {
      */
     @Operation(summary = "Send a friend request")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = HttpStatuses.CREATED),
-            @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
-            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
+        @ApiResponse(responseCode = "201", description = HttpStatuses.CREATED),
+        @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
+        @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
     })
     @PostMapping("/{receiverId}")
     public ResponseEntity<Void> addFriend(
-            @Parameter(hidden = true) @CurrentUser UserVO userVO,
-            @PathVariable Long receiverId) {
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        @PathVariable Long receiverId) {
         friendshipService.addFriend(userVO, receiverId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -92,15 +91,15 @@ public class FriendshipController {
      */
     @Operation(summary = "Cancel a friend request")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
-            @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
-            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+        @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
+        @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
     })
     @DeleteMapping("/{receiverId}")
     public ResponseEntity<Void> cancelFriendRequest(
-            @Parameter(hidden = true) @CurrentUser UserVO userVO,
-            @PathVariable Long receiverId) {
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        @PathVariable Long receiverId) {
         friendshipService.cancelFriendRequest(userVO, receiverId);
         return ResponseEntity.ok().build();
     }
