@@ -12,6 +12,7 @@ import greencity.repository.FriendshipRepo;
 import greencity.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,8 @@ public class FriendshipServiceImpl implements FriendshipService{
 
     @Override
     public Page<UserFriendDto> searchFriends(UserVO userVO, String query, Pageable pageable) {
-        return friendshipRepo.searchUsers(userVO.getId(), query, pageable)
+        Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        return friendshipRepo.searchUsers(userVO.getId(), query, unsorted)
                 .map(userFriendDtoMapper::toDto);
     }
 
