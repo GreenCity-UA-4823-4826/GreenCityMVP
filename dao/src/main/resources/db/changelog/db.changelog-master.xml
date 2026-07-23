@@ -175,11 +175,13 @@
     <include file="db/changelog/logs/ch-drop-photo-table-Bokalo.xml"/>
     <include file="db/changelog/logs/ch-drop-places-table-Bokalo.xml"/>
     <include file="db/changelog/logs/ch-drop-news-subscribers-table-Bokalo.xml"/>
+    <include file="db/changelog/logs/ch-recreate-news-subscribers.xml"/>
     <include file="db/changelog/logs/ch-drop-user-friends-table-Bokalo.xml"/>
     <include file="db/changelog/logs/ch-add-table-events-vdovych.xml"/>
     <include file="db/changelog/logs/ch-add-event-attendance-Vdovych.xml"/>
+    <include file="db/changelog/logs/ch-migrate-legacy-notifications.xml"/>
     <include file="db/changelog/logs/ch-add-table-notification.xml"/>
     <include file="db/changelog/logs/ch-add-new-columns-user-Kelevich.xml"/>
+    <include file="db/changelog/logs/ch-add-active-to-news-subscribers.xml"/>
     <include file="db/changelog/logs/ch-create-friendships-table-Vdovych.xml"/>
 </databaseChangeLog>
-

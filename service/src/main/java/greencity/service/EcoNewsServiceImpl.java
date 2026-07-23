@@ -9,6 +9,7 @@ import greencity.dto.PageableDto;
 import greencity.dto.econews.*;
 import greencity.dto.econewscomment.EcoNewsCommentVO;
 import greencity.dto.ratingstatistics.RatingStatisticsViewDto;
+import greencity.dto.newssubscriber.NewsSubscriberResponseDto;
 import greencity.dto.search.SearchNewsDto;
 import greencity.dto.tag.TagVO;
 import greencity.dto.user.EcoNewsAuthorDto;
@@ -26,6 +27,7 @@ import greencity.filters.EcoNewsSpecification;
 import greencity.filters.SearchCriteria;
 import greencity.repository.EcoNewsRepo;
 import greencity.repository.EcoNewsSearchRepo;
+import greencity.message.AddEcoNewsMessage;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -58,6 +60,7 @@ public class EcoNewsServiceImpl implements EcoNewsService {
     private final greencity.rating.RatingCalculation ratingCalculation;
     private final HttpServletRequest httpServletRequest;
     private final EcoNewsSearchRepo ecoNewsSearchRepo;
+    private final NewsSubscriberService newsSubscriberService;
     private final List<String> languageCode = List.of("en", "ua");
 
     /**
@@ -73,6 +76,7 @@ public class EcoNewsServiceImpl implements EcoNewsService {
 
         AddEcoNewsDtoResponse addEcoNewsDtoResponse = modelMapper.map(toSave, AddEcoNewsDtoResponse.class);
         sendEmailDto(addEcoNewsDtoResponse, toSave.getAuthor());
+        sendNewsletter(addEcoNewsDtoResponse);
         return addEcoNewsDtoResponse;
     }
 
@@ -88,7 +92,18 @@ public class EcoNewsServiceImpl implements EcoNewsService {
 
         EcoNewsGenericDto ecoNewsDto = getEcoNewsGenericDtoWithAllTags(toSave);
         sendEmailDto(ecoNewsDto, toSave.getAuthor());
+        sendNewsletter(modelMapper.map(toSave, AddEcoNewsDtoResponse.class));
         return ecoNewsDto;
+    }
+
+    private void sendNewsletter(AddEcoNewsDtoResponse ecoNews) {
+        List<NewsSubscriberResponseDto> subscribers = newsSubscriberService.findAllActiveSubscribers();
+        if (!subscribers.isEmpty()) {
+            restClient.sendNewsletter(AddEcoNewsMessage.builder()
+                .subscribers(subscribers)
+                .addEcoNewsDtoResponse(ecoNews)
+                .build());
+        }
     }
 
     /**

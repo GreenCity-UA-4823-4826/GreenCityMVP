@@ -7,6 +7,7 @@ import greencity.dto.PageableAdvancedDto;
 import greencity.dto.econews.EcoNewsForSendEmailDto;
 import greencity.dto.user.*;
 import greencity.enums.EmailNotification;
+import greencity.message.AddEcoNewsMessage;
 import greencity.message.SendHabitNotification;
 import greencity.message.SendReportEmailMessage;
 import org.junit.jupiter.api.Test;
@@ -315,10 +316,13 @@ class RestClientTest {
 
     @Test
     void addEcoNews() {
+        String token = "Bearer token";
         EcoNewsForSendEmailDto message = ModelUtils.getEcoNewsForSendEmailDto();
         HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(AUTHORIZATION, token);
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<EcoNewsForSendEmailDto> entity = new HttpEntity<>(message, httpHeaders);
+        when(httpServletRequest.getHeader(AUTHORIZATION)).thenReturn(token);
         when(restTemplate.exchange(greenCityUserServerAddress
             + RestTemplateLinks.ADD_ECO_NEWS, HttpMethod.POST, entity, Object.class))
             .thenReturn(ResponseEntity.ok(Object));
@@ -326,6 +330,25 @@ class RestClientTest {
 
         verify(restTemplate).exchange(greenCityUserServerAddress
             + RestTemplateLinks.ADD_ECO_NEWS, HttpMethod.POST, entity, Object.class);
+    }
+
+    @Test
+    void sendNewsletter() {
+        String token = "Bearer token";
+        AddEcoNewsMessage message = ModelUtils.getAddEcoNewsMessage();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(AUTHORIZATION, token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<AddEcoNewsMessage> entity = new HttpEntity<>(message, headers);
+        when(httpServletRequest.getHeader(AUTHORIZATION)).thenReturn(token);
+        when(restTemplate.exchange(greenCityUserServerAddress
+            + RestTemplateLinks.SEND_NEWSLETTER, HttpMethod.POST, entity, Object.class))
+            .thenReturn(ResponseEntity.ok(Object));
+
+        restClient.sendNewsletter(message);
+
+        verify(restTemplate).exchange(greenCityUserServerAddress
+            + RestTemplateLinks.SEND_NEWSLETTER, HttpMethod.POST, entity, Object.class);
     }
 
     @Test

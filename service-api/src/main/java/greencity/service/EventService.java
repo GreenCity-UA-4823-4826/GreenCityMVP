@@ -30,8 +30,8 @@ public interface EventService {
         UserVO userVO);
 
     /**
-     * Method for deleting an Event by id.
-     * Only the event organizer or admin can delete it.
+     * Method for deleting an Event by id. Only the event organizer or admin can
+     * delete it.
      *
      * @param eventId - id of the event to delete.
      * @param userVO  - current authorized user performing the deletion.

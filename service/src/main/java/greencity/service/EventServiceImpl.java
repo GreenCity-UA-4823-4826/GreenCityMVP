@@ -36,7 +36,7 @@ public class EventServiceImpl implements EventService {
 
     private static final int MAX_IMAGES = 5;
     private static final List<String> VALID_IMAGE_TYPES =
-            List.of("image/jpeg", "image/png", "image/jpg");
+        List.of("image/jpeg", "image/png", "image/jpg");
 
     private final EventRepo eventRepo;
     private final UserRepo userRepo;
@@ -49,13 +49,13 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventResponseDto createEvent(EventCreateRequestDto eventCreateRequestDto,
-                                        MultipartFile[] images,
-                                        Integer mainImageIndex,
-                                        UserVO userVO) {
+        MultipartFile[] images,
+        Integer mainImageIndex,
+        UserVO userVO) {
 
         User organizer = userRepo.findById(userVO.getId())
-                .orElseThrow(() -> new NotFoundException(
-                        ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
+            .orElseThrow(() -> new NotFoundException(
+                ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
 
         Event event = eventCreateRequestDtoMapper.toEntity(eventCreateRequestDto, organizer);
 
@@ -74,10 +74,10 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long eventId, UserVO userVO) {
         Event event = eventRepo.findById(eventId)
             .orElseThrow(() -> new NotFoundException(
-                    ErrorMessage.EVENT_NOT_FOUND_BY_ID + eventId));
+                ErrorMessage.EVENT_NOT_FOUND_BY_ID + eventId));
 
         if (userVO.getRole() != Role.ROLE_ADMIN
-                && !userVO.getId().equals(event.getOrganizer().getId())) {
+            && !userVO.getId().equals(event.getOrganizer().getId())) {
             throw new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION);
         }
 
@@ -94,8 +94,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public PageableDto<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable) {
         User user = userRepo.findById(userVO.getId())
-                .orElseThrow(() -> new NotFoundException(
-                        ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
+            .orElseThrow(() -> new NotFoundException(
+                ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
 
         List<Event> organizedEvents = eventRepo.findByOrganizerId(user.getId());
         List<EventAttendance> joinedEvents = attendanceRepo.findByUserId(user.getId());
@@ -103,13 +103,13 @@ public class EventServiceImpl implements EventService {
         List<MyEventResponseDto> result = new ArrayList<>();
 
         organizedEvents.stream()
-                .map(myEventResponseDtoMapper::fromEvent)
-                .forEach(result::add);
+            .map(myEventResponseDtoMapper::fromEvent)
+            .forEach(result::add);
 
         joinedEvents.stream()
-                .filter(attendance -> !attendance.getEvent().getOrganizer().getId().equals(user.getId()))
-                .map(myEventResponseDtoMapper::fromAttendance)
-                .forEach(result::add);
+            .filter(attendance -> !attendance.getEvent().getOrganizer().getId().equals(user.getId()))
+            .map(myEventResponseDtoMapper::fromAttendance)
+            .forEach(result::add);
 
         int start = Math.min((int) pageable.getOffset(), result.size());
         int end = Math.min(start + pageable.getPageSize(), result.size());
@@ -117,11 +117,10 @@ public class EventServiceImpl implements EventService {
         List<MyEventResponseDto> pageContent = result.subList(start, end);
 
         return new PageableDto<>(
-                pageContent,
-                result.size(),
-                pageable.getPageNumber(),
-                (int) Math.ceil((double) result.size() / pageable.getPageSize())
-        );
+            pageContent,
+            result.size(),
+            pageable.getPageNumber(),
+            (int) Math.ceil((double) result.size() / pageable.getPageSize()));
     }
 
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
