@@ -74,9 +74,9 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
     @Override
     public void createNotification(UserVO targetUser, UserVO actionUser, NotificationType notificationType,
-        Long targetId, String secondMessageText) {
+        Long targetId, String secondMessageText, Long secondMessageId) {
         Notification notification = findExistingNotification(targetUser.getId(), notificationType, targetId)
-            .orElseGet(() -> buildNotification(notificationType, targetUser, targetId, secondMessageText));
+            .orElseGet(() -> buildNotification(notificationType, targetUser, targetId, secondMessageText, secondMessageId));
         updateNotificationWithActionUser(notification, actionUser, secondMessageText);
         saveAndNotify(notification);
     }
@@ -150,7 +150,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     private Notification buildNotification(NotificationType notificationType, UserVO targetUserVO, Long targetId,
-        String secondMessageText) {
+        String secondMessageText, Long secondMessageId) {
         return Notification.builder()
             .notificationType(notificationType)
             .projectName(ProjectName.GREENCITY)
@@ -158,6 +158,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
             .actionUsers(new ArrayList<>())
             .targetId(targetId)
             .secondMessage(secondMessageText)
+            .secondMessageId(secondMessageId)
             .time(ZonedDateTime.now())
             .emailSent(false)
             .build();

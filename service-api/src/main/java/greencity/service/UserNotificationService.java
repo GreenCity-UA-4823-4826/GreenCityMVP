@@ -16,7 +16,7 @@ public interface UserNotificationService {
     void notificationSocket(ActionDto user);
 
     void createNotification(UserVO targetUser, UserVO actionUser, NotificationType notificationType,
-        Long targetId, String secondMessageText);
+        Long targetId, String secondMessageText, Long secondMessageId);
 
     void deleteNotification(Long userId, Long notificationId);
 

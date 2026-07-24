@@ -23,6 +23,7 @@ public class EcoNewsCommentNotificationListener {
             event.getCommenter(),
             NotificationType.ECONEWS_COMMENT,
             event.getEcoNewsId(),
-            event.getNewsTitle());
+            event.getNewsTitle(),
+            event.getEcoNewsId());
     }
 }

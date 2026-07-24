@@ -160,7 +160,7 @@ class UserNotificationServiceImplTest {
         when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
 
         userNotificationService.createNotification(targetUserVO, actionUserVO,
-            NotificationType.ECONEWS_COMMENT, 1L, "title");
+            NotificationType.ECONEWS_COMMENT, 1L, "title", 1L);
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(notificationRepo).save(captor.capture());
@@ -169,6 +169,7 @@ class UserNotificationServiceImplTest {
         assertEquals(ProjectName.GREENCITY, saved.getProjectName());
         assertEquals(1L, saved.getTargetId());
         assertEquals("title", saved.getSecondMessage());
+        assertEquals(1L, saved.getSecondMessageId());
         assertEquals(List.of(actionUser), saved.getActionUsers());
         assertFalse(saved.isViewed());
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 1L);
@@ -190,7 +191,7 @@ class UserNotificationServiceImplTest {
         when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
 
         userNotificationService.createNotification(targetUserVO, actionUserVO,
-            NotificationType.ECONEWS_COMMENT, 1L, "new title");
+            NotificationType.ECONEWS_COMMENT, 1L, "new title", 1L);
 
         assertEquals(2, existing.getActionUsers().size());
         assertTrue(existing.getActionUsers().contains(actionUser));
@@ -212,7 +213,7 @@ class UserNotificationServiceImplTest {
         when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
 
         userNotificationService.createNotification(targetUserVO, actionUserVO,
-            NotificationType.ECONEWS_COMMENT, 1L, "title");
+            NotificationType.ECONEWS_COMMENT, 1L, "title", 1L);
 
         assertEquals(1, existing.getActionUsers().size());
     }
