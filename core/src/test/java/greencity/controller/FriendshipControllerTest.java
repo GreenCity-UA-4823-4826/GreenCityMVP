@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.mockito.Mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -98,30 +100,85 @@ class FriendshipControllerTest {
     }
 
     @Test
+    void getFriends_validRequest_returnsAcceptedFriends() throws Exception {
+        UserFriendDto friend = UserFriendDto.builder()
+            .id(2L)
+            .name("Friend")
+            .build();
+        when(userService.findByEmail(anyString())).thenReturn(ModelUtils.getUserVO());
+        when(friendshipService.getFriends(any(UserVO.class), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(friend), PageRequest.of(0, 10), 1));
+
+        mockMvc.perform(get(FRIENDS_LINK)
+                .param("page", "0")
+                .param("size", "10")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).getFriends(any(UserVO.class), any(Pageable.class));
+    }
+
+    @Test
+    void getUserFriends_validRequest_returnsProfileOwnerFriends() throws Exception {
+        UserFriendDto friend = UserFriendDto.builder()
+            .id(3L)
+            .name("Profile friend")
+            .build();
+        when(friendshipService.getFriends(eq(4L), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(friend), PageRequest.of(0, 10), 1));
+
+        mockMvc.perform(get(FRIENDS_LINK + "/user/4")
+                .param("page", "0")
+                .param("size", "10")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).getFriends(eq(4L), any(Pageable.class));
+    }
+
+    @Test
     void searchFriends_validRequest_returnsOk() throws Exception {
         UserVO userVO = ModelUtils.getUserVO();
         UserFriendDto dto = UserFriendDto.builder()
-                .id(2L)
-                .name("Kristin Watson")
-                .city("Lviv")
-                .rating(658.0)
-                .mutualFriendsCount(8L)
-                .build();
+            .id(2L)
+            .name("Kristin Watson")
+            .city("Lviv")
+            .rating(658.0)
+            .mutualFriendsCount(8L)
+            .build();
 
         when(userService.findByEmail(anyString())).thenReturn(userVO);
-        when(friendshipService.searchFriends(any(), anyString(), any(), any(), any()))  // ← 5 параметрів
-                .thenReturn(new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1));
+        when(friendshipService.searchFriends(any(), anyString(), any(), any(), any())) // ← 5 параметрів
+            .thenReturn(new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1));
 
         mockMvc.perform(get(FRIENDS_LINK + "/search")
-                        .param("query", "Kristin")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .principal(principal)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+            .param("query", "Kristin")
+            .param("page", "0")
+            .param("size", "10")
+            .principal(principal)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
 
-        verify(friendshipService, times(1)).searchFriends(any(), anyString(), any(), any(), any());  // ← 5 параметрів
+        verify(friendshipService, times(1)).searchFriends(any(), anyString(), any(), any(), any()); // ← 5 параметрів
+    }
+
+    @Test
+    void searchFriends_emptyQuery_returnsAllAvailableUsers() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(ModelUtils.getUserVO());
+        when(friendshipService.searchFriends(any(), eq(""), any(), any(), any()))
+            .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 10), 0));
+
+        mockMvc.perform(get(FRIENDS_LINK + "/search")
+                .param("page", "0")
+                .param("size", "10")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).searchFriends(any(), eq(""), any(), any(), any());
     }
 
     @Test
@@ -145,10 +202,34 @@ class FriendshipControllerTest {
         doNothing().when(friendshipService).cancelFriendRequest(any(), anyLong());
 
         mockMvc.perform(delete(FRIENDS_LINK + "/2")
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
 
         verify(friendshipService, times(1)).cancelFriendRequest(any(), eq(2L));
+    }
+
+    @Test
+    void acceptFriendRequest_validRequest_returnsOk() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(ModelUtils.getUserVO());
+
+        mockMvc.perform(patch(FRIENDS_LINK + "/2/accept")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).acceptFriendRequest(any(), eq(2L));
+    }
+
+    @Test
+    void declineFriendRequest_validRequest_returnsOk() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(ModelUtils.getUserVO());
+
+        mockMvc.perform(patch(FRIENDS_LINK + "/2/decline")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).declineFriendRequest(any(), eq(2L));
     }
 }

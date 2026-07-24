@@ -13,6 +13,17 @@ import java.util.Optional;
 
 @Repository
 public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
+    @Query("""
+        SELECT f FROM Friendship f
+        WHERE (f.requester.id = :userId OR f.receiver.id = :userId)
+          AND f.friendshipStatus = :status
+        ORDER BY f.createdDate DESC
+        """)
+    Page<Friendship> findAllByUserIdAndStatus(
+        @Param("userId") Long userId,
+        @Param("status") FriendshipStatus status,
+        Pageable pageable);
+
     /**
      * Count friends of the given user with the given status.
      *

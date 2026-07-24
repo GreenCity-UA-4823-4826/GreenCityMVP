@@ -7,6 +7,24 @@ import org.springframework.data.domain.Pageable;
 
 public interface FriendshipService {
     /**
+     * Returns accepted friends of the current user.
+     *
+     * @param userVO   current authorized user.
+     * @param pageable pagination parameters.
+     * @return page of accepted friends.
+     */
+    Page<UserFriendDto> getFriends(UserVO userVO, Pageable pageable);
+
+    /**
+     * Returns accepted friends of the requested user.
+     *
+     * @param userId   id of the profile owner.
+     * @param pageable pagination parameters.
+     * @return page of accepted friends.
+     */
+    Page<UserFriendDto> getFriends(Long userId, Pageable pageable);
+
+    /**
      * Method for counting friends of the current user.
      *
      * @param userVO - current authorized user.
@@ -45,4 +63,20 @@ public interface FriendshipService {
      * @param receiverId - id of the user to cancel request for.
      */
     void cancelFriendRequest(UserVO userVO, Long receiverId);
+
+    /**
+     * Accepts a pending friend request received by the current user.
+     *
+     * @param userVO      current authorized user.
+     * @param requesterId id of the user who sent the request.
+     */
+    void acceptFriendRequest(UserVO userVO, Long requesterId);
+
+    /**
+     * Declines a pending friend request received by the current user.
+     *
+     * @param userVO      current authorized user.
+     * @param requesterId id of the user who sent the request.
+     */
+    void declineFriendRequest(UserVO userVO, Long requesterId);
 }

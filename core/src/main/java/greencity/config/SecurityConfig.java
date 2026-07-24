@@ -196,7 +196,9 @@ public class SecurityConfig {
                     "/habit/search",
                     "/habit/{habitId}/friends/profile-pictures",
                     "/events/myEvents",
+                    FRIENDS,
                     FRIENDS + "/count",
+                    FRIENDS + "/user/{userId}",
                     FRIENDS + "/search")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
@@ -244,7 +246,9 @@ public class SecurityConfig {
                     USER_SHOPPING_LIST + "/{shoppingListItemId}/status/{status}",
                     USER_SHOPPING_LIST + "/{userShoppingListItemId}",
                     "/user/profilePicture",
-                    "/user/deleteProfilePicture")
+                    "/user/deleteProfilePicture",
+                    FRIENDS + "/{requesterId}/accept",
+                    FRIENDS + "/{requesterId}/decline")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.DELETE,
                     ECONEWS_COMMENTS,
@@ -258,7 +262,8 @@ public class SecurityConfig {
                     "/social-networks",
                     USER_CUSTOM_SHOPPING_LIST_ITEMS,
                     USER_SHOPPING_LIST + "/user-shopping-list-items",
-                    FRIENDS +"/{receiverId}")
+                    FRIENDS + "/{receiverId}",
+                    FRIENDS + "/{receiverId}/cancelRequest")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.GET,
                     NOTIFICATIONS,

@@ -26,6 +26,20 @@ import org.springframework.web.bind.annotation.*;
 public class FriendshipController {
     private final FriendshipService friendshipService;
 
+    @GetMapping
+    public ResponseEntity<Page<UserFriendDto>> getFriends(
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        Pageable pageable) {
+        return ResponseEntity.ok(friendshipService.getFriends(userVO, pageable));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<UserFriendDto>> getUserFriends(
+        @PathVariable Long userId,
+        Pageable pageable) {
+        return ResponseEntity.ok(friendshipService.getFriends(userId, pageable));
+    }
+
     /**
      * Method for getting the count of friends for the current authorized user.
      *
@@ -59,14 +73,13 @@ public class FriendshipController {
     @GetMapping("/search")
     public ResponseEntity<Page<UserFriendDto>> searchFriends(
         @Parameter(hidden = true) @CurrentUser UserVO userVO,
-        @RequestParam
-        @Size(min = 1, max = 30)
-        @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄ'. ]+$") String query,
+        @RequestParam(required = false, defaultValue = "")
+        @Size(max = 30) @Pattern(regexp = "^[a-zA-Zа-яА-ЯіІїЇєЄ'. ]*$") String query,
         @RequestParam(required = false, defaultValue = "false") Boolean filterByCity,
         @RequestParam(required = false, defaultValue = "false") Boolean filterByFriendsOfFriends,
         Pageable pageable) {
         return ResponseEntity.ok(
-                friendshipService.searchFriends(userVO, query, filterByCity, filterByFriendsOfFriends, pageable));
+            friendshipService.searchFriends(userVO, query, filterByCity, filterByFriendsOfFriends, pageable));
     }
 
     /**
@@ -105,11 +118,27 @@ public class FriendshipController {
         @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
         @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
     })
-    @DeleteMapping("/{receiverId}")
+    @DeleteMapping({"/{receiverId}", "/{receiverId}/cancelRequest"})
     public ResponseEntity<Void> cancelFriendRequest(
         @Parameter(hidden = true) @CurrentUser UserVO userVO,
         @PathVariable Long receiverId) {
         friendshipService.cancelFriendRequest(userVO, receiverId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{requesterId}/accept")
+    public ResponseEntity<Void> acceptFriendRequest(
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        @PathVariable Long requesterId) {
+        friendshipService.acceptFriendRequest(userVO, requesterId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{requesterId}/decline")
+    public ResponseEntity<Void> declineFriendRequest(
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        @PathVariable Long requesterId) {
+        friendshipService.declineFriendRequest(userVO, requesterId);
         return ResponseEntity.ok().build();
     }
 }
