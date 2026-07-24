@@ -65,6 +65,14 @@ public interface FriendshipService {
     void cancelFriendRequest(UserVO userVO, Long receiverId);
 
     /**
+     * Removes an accepted friendship of the current user.
+     *
+     * @param userVO  current authorized user.
+     * @param friendId id of the friend to remove.
+     */
+    void removeFriend(UserVO userVO, Long friendId);
+
+    /**
      * Accepts a pending friend request received by the current user.
      *
      * @param userVO      current authorized user.

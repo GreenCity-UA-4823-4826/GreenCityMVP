@@ -210,6 +210,19 @@ class FriendshipControllerTest {
     }
 
     @Test
+    void removeFriend_validRequest_returnsOk() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(ModelUtils.getUserVO());
+        doNothing().when(friendshipService).removeFriend(any(), anyLong());
+
+        mockMvc.perform(delete(FRIENDS_LINK + "/2/remove")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).removeFriend(any(), eq(2L));
+    }
+
+    @Test
     void acceptFriendRequest_validRequest_returnsOk() throws Exception {
         when(userService.findByEmail(anyString())).thenReturn(ModelUtils.getUserVO());
 

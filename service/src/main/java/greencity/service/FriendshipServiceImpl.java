@@ -108,6 +108,19 @@ public class FriendshipServiceImpl implements FriendshipService{
     }
 
     @Override
+    public void removeFriend(UserVO userVO, Long friendId) {
+        Friendship friendship = friendshipRepo
+            .findFriendshipBetweenUsers(userVO.getId(), friendId)
+            .orElseThrow(() -> new NotFoundException("Friendship not found"));
+
+        if (friendship.getFriendshipStatus() != FriendshipStatus.ACCEPTED) {
+            throw new BadRequestException("Only accepted friendships can be removed");
+        }
+
+        friendshipRepo.delete(friendship);
+    }
+
+    @Override
     public void acceptFriendRequest(UserVO userVO, Long requesterId) {
         Friendship friendship = getReceivedPendingRequest(userVO.getId(), requesterId);
         friendship.setFriendshipStatus(FriendshipStatus.ACCEPTED);

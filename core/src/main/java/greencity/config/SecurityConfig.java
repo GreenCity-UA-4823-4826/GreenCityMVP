@@ -263,7 +263,8 @@ public class SecurityConfig {
                     USER_CUSTOM_SHOPPING_LIST_ITEMS,
                     USER_SHOPPING_LIST + "/user-shopping-list-items",
                     FRIENDS + "/{receiverId}",
-                    FRIENDS + "/{receiverId}/cancelRequest")
+                    FRIENDS + "/{receiverId}/cancelRequest",
+                    FRIENDS + "/{friendId}/remove")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.GET,
                     NOTIFICATIONS,

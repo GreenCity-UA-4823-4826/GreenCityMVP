@@ -126,6 +126,14 @@ public class FriendshipController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{friendId}/remove")
+    public ResponseEntity<Void> removeFriend(
+        @Parameter(hidden = true) @CurrentUser UserVO userVO,
+        @PathVariable Long friendId) {
+        friendshipService.removeFriend(userVO, friendId);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/{requesterId}/accept")
     public ResponseEntity<Void> acceptFriendRequest(
         @Parameter(hidden = true) @CurrentUser UserVO userVO,
