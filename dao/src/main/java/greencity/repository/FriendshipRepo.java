@@ -17,6 +17,6 @@ public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
      * @return number of friendships as {@code long}.
      */
     @Query("SELECT COUNT(f) FROM Friendship f " +
-            "WHERE (f.receiver.id = :userId OR f.requester.id = :userId) AND f.friendshipStatus = :status")
-    long countOfUserFriends(@Param("userId") Long userId, @Param("status")FriendshipStatus status);
+        "WHERE (f.receiver.id = :userId OR f.requester.id = :userId) AND f.friendshipStatus = :status")
+    long countOfUserFriends(@Param("userId") Long userId, @Param("status") FriendshipStatus status);
 }

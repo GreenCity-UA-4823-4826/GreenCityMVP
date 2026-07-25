@@ -29,12 +29,12 @@ public class FriendshipController {
      */
     @Operation(summary = "Get count of current user's friends")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
-            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/count")
     public ResponseEntity<Long> getFriendsCount(
-            @Parameter(hidden = true) @CurrentUser UserVO userVO) {
+        @Parameter(hidden = true) @CurrentUser UserVO userVO) {
         return ResponseEntity.ok(friendshipService.countOfUserFriends(userVO));
     }
 }
