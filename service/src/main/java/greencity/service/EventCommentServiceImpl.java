@@ -51,8 +51,13 @@ public class EventCommentServiceImpl implements EventCommentService {
             .build();
         EventComment savedComment = eventCommentRepo.save(comment);
 
-        User organizer = event.getOrganizer();
-        if (organizer != null && !userVO.getId().equals(organizer.getId())) {
+        // event.getOrganizer() is a lazy proxy; reading its id does not initialize
+        // it, but ModelMapper is configured for private field access and would map
+        // a proxy to an all-null UserVO, so load the organizer before mapping.
+        Long organizerId = event.getOrganizer() == null ? null : event.getOrganizer().getId();
+        if (organizerId != null && !userVO.getId().equals(organizerId)) {
+            User organizer = userRepo.findById(organizerId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_ID + organizerId));
             eventPublisher.publishEvent(EventCommentNotificationEvent.builder()
                 .organizer(modelMapper.map(organizer, UserVO.class))
                 .commenter(userVO)

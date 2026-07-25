@@ -84,6 +84,7 @@ class EventCommentServiceImplTest {
 
         when(eventRepo.findById(1L)).thenReturn(Optional.of(event));
         when(userRepo.findById(1L)).thenReturn(Optional.of(commenter));
+        when(userRepo.findById(2L)).thenReturn(Optional.of(organizer));
         when(eventCommentRepo.save(any(EventComment.class))).then(AdditionalAnswers.returnsFirstArg());
         when(modelMapper.map(organizer, UserVO.class)).thenReturn(organizerVO);
 
@@ -116,6 +117,29 @@ class EventCommentServiceImplTest {
         eventCommentService.save(1L, request, commenterVO);
 
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void save_CommenterIsNotOrganizer_LoadsOrganizerInsteadOfMappingLazyProxy() {
+        User organizer = buildUser(2L);
+        User commenter = buildUser(1L);
+        Event event = getEvent(organizer);
+        UserVO commenterVO = getUserVO();
+        UserVO organizerVO = getUserVO();
+        organizerVO.setId(2L);
+        AddEventCommentDtoRequest request = AddEventCommentDtoRequest.builder().text("text").build();
+
+        when(eventRepo.findById(1L)).thenReturn(Optional.of(event));
+        when(userRepo.findById(1L)).thenReturn(Optional.of(commenter));
+        when(userRepo.findById(2L)).thenReturn(Optional.of(organizer));
+        when(eventCommentRepo.save(any(EventComment.class))).then(AdditionalAnswers.returnsFirstArg());
+        when(modelMapper.map(organizer, UserVO.class)).thenReturn(organizerVO);
+
+        eventCommentService.save(1L, request, commenterVO);
+
+        // Event.organizer is a lazy proxy that ModelMapper would map to an
+        // all-null UserVO, so the organizer must be re-read through the repo.
+        verify(userRepo).findById(2L);
     }
 
     @Test
