@@ -5,9 +5,8 @@ import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
 import greencity.dto.event.MyEventResponseDto;
 import greencity.dto.user.UserVO;
-import org.springframework.web.multipart.MultipartFile;
-
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Provides the interface to manage {@code Event} entity.
