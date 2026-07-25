@@ -235,12 +235,11 @@ class UserNotificationServiceImplTest {
     }
 
     @Test
-    void viewNotification_NotificationExists_MarksViewedAndSendsUnreadCount() {
-        Notification notification = getNotification();
-        when(notificationRepo.findById(1L)).thenReturn(Optional.of(notification));
+    void viewNotification_NotificationBelongsToUser_MarksViewedAndSendsUnreadCount() {
+        when(notificationRepo.existsByIdAndTargetUserId(1L, 1L)).thenReturn(true);
         when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(0L);
 
-        userNotificationService.viewNotification(1L);
+        userNotificationService.viewNotification(1L, 1L);
 
         verify(notificationRepo).markNotificationAsViewed(1L);
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 0L);
@@ -248,19 +247,26 @@ class UserNotificationServiceImplTest {
 
     @Test
     void viewNotification_NotificationMissing_ThrowsNotFoundException() {
-        when(notificationRepo.findById(1L)).thenReturn(Optional.empty());
+        when(notificationRepo.existsByIdAndTargetUserId(1L, 1L)).thenReturn(false);
 
-        assertThrows(NotFoundException.class, () -> userNotificationService.viewNotification(1L));
+        assertThrows(NotFoundException.class, () -> userNotificationService.viewNotification(1L, 1L));
         verify(notificationRepo, never()).markNotificationAsViewed(1L);
     }
 
     @Test
-    void unreadNotification_NotificationExists_MarksNotViewedAndSendsUnreadCount() {
-        Notification notification = getNotification();
-        when(notificationRepo.findById(1L)).thenReturn(Optional.of(notification));
+    void viewNotification_NotificationDoesNotBelongToUser_ThrowsNotFoundException() {
+        when(notificationRepo.existsByIdAndTargetUserId(1L, 2L)).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> userNotificationService.viewNotification(2L, 1L));
+        verify(notificationRepo, never()).markNotificationAsViewed(1L);
+    }
+
+    @Test
+    void unreadNotification_NotificationBelongsToUser_MarksNotViewedAndSendsUnreadCount() {
+        when(notificationRepo.existsByIdAndTargetUserId(1L, 1L)).thenReturn(true);
         when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
 
-        userNotificationService.unreadNotification(1L);
+        userNotificationService.unreadNotification(1L, 1L);
 
         verify(notificationRepo).markNotificationAsNotViewed(1L);
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 1L);
@@ -268,9 +274,26 @@ class UserNotificationServiceImplTest {
 
     @Test
     void unreadNotification_NotificationMissing_ThrowsNotFoundException() {
-        when(notificationRepo.findById(1L)).thenReturn(Optional.empty());
+        when(notificationRepo.existsByIdAndTargetUserId(1L, 1L)).thenReturn(false);
 
-        assertThrows(NotFoundException.class, () -> userNotificationService.unreadNotification(1L));
+        assertThrows(NotFoundException.class, () -> userNotificationService.unreadNotification(1L, 1L));
         verify(notificationRepo, never()).markNotificationAsNotViewed(1L);
+    }
+
+    @Test
+    void unreadNotification_NotificationDoesNotBelongToUser_ThrowsNotFoundException() {
+        when(notificationRepo.existsByIdAndTargetUserId(1L, 2L)).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> userNotificationService.unreadNotification(2L, 1L));
+        verify(notificationRepo, never()).markNotificationAsNotViewed(1L);
+    }
+
+    @Test
+    void countUnreadNotifications_ReturnsCountFromRepo() {
+        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(5L);
+
+        long result = userNotificationService.countUnreadNotifications(1L);
+
+        assertEquals(5L, result);
     }
 }
