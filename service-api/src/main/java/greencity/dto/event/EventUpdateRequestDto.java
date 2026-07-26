@@ -1,6 +1,5 @@
 package greencity.dto.event;
 
-import greencity.annotations.ValidEventLocation;
 import greencity.enums.event.EventType;
 import greencity.enums.event.EventVisibility;
 import greencity.enums.event.InitiativeType;
@@ -11,13 +10,13 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@ValidEventLocation
 @Getter
 @Setter
-public class EventCreateRequestDto {
+public class EventUpdateRequestDto {
     @NotBlank(message = "Title is required")
     @Size(max = 70, message = "Title must not exceed 70 characters")
     private String title;
@@ -45,4 +44,8 @@ public class EventCreateRequestDto {
 
     @URL(message = "Online link must be a valid URL")
     private String onlineLink;
+
+    private List<String> imageOrder = new ArrayList<>();
+
+    private Integer mainImageIndex;
 }

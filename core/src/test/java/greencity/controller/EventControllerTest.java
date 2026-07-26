@@ -41,6 +41,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import greencity.exception.exceptions.BadRequestException;
+import org.springframework.http.HttpMethod;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -253,5 +255,172 @@ class EventControllerTest {
             .principal(principal)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateEvent_validRequest_returnsOkWithBody() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        EventResponseDto responseDto = EventResponseDto.builder()
+            .id(1L)
+            .title("Updated park cleanup")
+            .organizerId(userVO.getId())
+            .build();
+
+        when(eventService.updateEvent(any(), any(), any(), any())).thenReturn(responseDto);
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(responseDto.getId()))
+            .andExpect(jsonPath("$.title").value(responseDto.getTitle()))
+            .andExpect(jsonPath("$.organizerId").value(responseDto.getOrganizerId()));
+
+        verify(eventService, times(1)).updateEvent(any(), any(), any(), any());
+    }
+
+    @Test
+    void updateEvent_eventNotFound_returnsNotFound() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        when(eventService.updateEvent(any(), any(), any(), any()))
+            .thenThrow(new NotFoundException(ErrorMessage.EVENT_NOT_FOUND_BY_ID + 999L));
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 999L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateEvent_noPermission_returnsForbidden() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        when(eventService.updateEvent(any(), any(), any(), any()))
+            .thenThrow(new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION));
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void updateEvent_pastEvent_returnsBadRequest() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        when(eventService.updateEvent(any(), any(), any(), any()))
+            .thenThrow(new BadRequestException(ErrorMessage.EVENT_ALREADY_PASSED));
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateEvent_blankTitle_returnsBadRequest() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"location\":\"Shevchenko Park\","
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(eventService);
     }
 }

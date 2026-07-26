@@ -9,7 +9,6 @@ import greencity.entity.event.EventImage;
 import greencity.enums.event.EventAttendanceStatus;
 import greencity.enums.event.EventStatus;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class MyEventResponseDtoMapper {
-
     public MyEventResponseDto fromEvent(Event event) {
         return buildDto(event, null);
     }

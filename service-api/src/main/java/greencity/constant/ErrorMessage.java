@@ -139,6 +139,10 @@ public final class ErrorMessage {
     public static final String INVALID_IMAGE_TYPE = "Invalid image type. Only JPEG and PNG are allowed.";
     public static final String EVENT_NOT_FOUND_BY_ID = "The event does not exist by this id: ";
     public static final String NOTIFICATION_NOT_FOUND_BY_ID = "Notification not found by id: ";
+    public static final String EVENT_ALREADY_PASSED = "Cannot edit a past event.";
+    public static final String IMAGE_MARKERS_COUNT_MISMATCH =
+        "The number of NEW_ markers does not match the actual number of provided images.";
+    public static final String INVALID_IMAGE_URL = "Image URL does not belong to this event.";
 
     private ErrorMessage() {
     }

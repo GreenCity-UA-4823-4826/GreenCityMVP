@@ -3,10 +3,10 @@ package greencity.service;
 import greencity.dto.PageableDto;
 import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
+import greencity.dto.event.EventUpdateRequestDto;
 import greencity.dto.event.MyEventResponseDto;
 import greencity.dto.user.UserVO;
 import org.springframework.web.multipart.MultipartFile;
-
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -46,4 +46,17 @@ public interface EventService {
      * @return page of {@link MyEventResponseDto}.
      */
     PageableDto<MyEventResponseDto> getMyEvents(UserVO userVO, Pageable pageable);
+
+    /**
+     * Method for updating an existing Event. Only the event organizer or admin can
+     * edit it.
+     *
+     * @param eventId   - id of the event to update.
+     * @param dto       - dto with updated event data including image order.
+     * @param newImages - array of new images to upload, can be null.
+     * @param userVO    - current authorized user performing the update.
+     * @return updated event as {@link EventResponseDto}.
+     */
+    EventResponseDto updateEvent(Long eventId, EventUpdateRequestDto dto,
+        MultipartFile[] newImages, UserVO userVO);
 }
