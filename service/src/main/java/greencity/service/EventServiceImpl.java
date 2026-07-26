@@ -3,10 +3,7 @@ package greencity.service;
 import greencity.constant.AppConstant;
 import greencity.constant.ErrorMessage;
 import greencity.dto.PageableDto;
-import greencity.dto.event.EventCreateRequestDto;
-import greencity.dto.event.EventResponseDto;
-import greencity.dto.event.EventUpdateRequestDto;
-import greencity.dto.event.MyEventResponseDto;
+import greencity.dto.event.*;
 import greencity.dto.user.UserVO;
 import greencity.entity.event.Event;
 import greencity.entity.event.EventAttendance;
@@ -24,6 +21,7 @@ import greencity.repository.UserRepo;
 import greencity.validator.ImageSizeValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +45,7 @@ public class EventServiceImpl implements EventService {
     private final EventResponseDtoMapper eventResponseDtoMapper;
     private final EventAttendanceRepo attendanceRepo;
     private final MyEventResponseDtoMapper myEventResponseDtoMapper;
+    private final EventPreviewResponseDtoMapper eventPreviewResponseDtoMapper;
     private final EventDateDtoMapper eventDateDtoMapper;
     private final EventUpdateRequestDtoMapper eventUpdateRequestDtoMapper;
     private final ApplicationEventPublisher eventPublisher;
@@ -257,6 +256,19 @@ public class EventServiceImpl implements EventService {
         return eventResponseDtoMapper.convert(savedEvent);
     }
 
+    @Override
+    public List<EventSearchSuggestionResponseDto> getSearchSuggestions(String query) {
+        validateSearchQueryLength(query);
+        return eventRepo.findTitleSuggestions(query);
+    }
+
+    @Override
+    public Page<EventPreviewResponseDto> searchEvents(String query, Pageable pageable) {
+        validateSearchQueryLength(query);
+        return eventRepo.searchByTitle(query, pageable)
+                .map(eventPreviewResponseDtoMapper::toDto);
+    }
+
     private List<EventImage> buildEventImages(MultipartFile[] images, Integer mainImageIndex) {
         List<EventImage> eventImages = new ArrayList<>();
 
@@ -302,6 +314,15 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private void validateSearchQueryLength(String query) {
+        if (query.length() < 3) {
+            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_SHORT);
+        }
+        if (query.length() > 64) {
+            throw new BadRequestException(ErrorMessage.SEARCH_QUERY_TOO_LONG);
+        }
+    }
+  
     private void validateUser(UserVO userVO, Event event) {
         if (userVO.getRole() != Role.ROLE_ADMIN
             && !userVO.getId().equals(event.getOrganizer().getId())) {

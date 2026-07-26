@@ -201,6 +201,8 @@ public class SecurityConfig {
                     "/habit/search",
                     "/habit/{habitId}/friends/profile-pictures",
                     "/events/myEvents",
+                    "/events/search",
+                    "/events/search/suggestions",
                     "/friends/count")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
