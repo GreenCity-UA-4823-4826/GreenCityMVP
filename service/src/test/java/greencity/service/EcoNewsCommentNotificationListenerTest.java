@@ -2,7 +2,7 @@ package greencity.service;
 
 import greencity.dto.user.UserVO;
 import greencity.enums.NotificationType;
-import greencity.event.EcoNewsCommentNotificationEvent;
+import greencity.application.event.EcoNewsCommentNotificationEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

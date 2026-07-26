@@ -15,7 +15,7 @@ import greencity.exception.exceptions.NotFoundException;
 import greencity.exception.exceptions.UserHasNoPermissionToAccessException;
 import greencity.repository.EcoNewsCommentRepo;
 import greencity.repository.EcoNewsRepo;
-import greencity.event.EcoNewsCommentNotificationEvent;
+import greencity.application.event.EcoNewsCommentNotificationEvent;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
