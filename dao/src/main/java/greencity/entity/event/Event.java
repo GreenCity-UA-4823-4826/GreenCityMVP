@@ -1,16 +1,13 @@
 package greencity.entity.event;
 
 import greencity.entity.User;
-
 import greencity.enums.event.EventType;
 import greencity.enums.event.EventVisibility;
 import greencity.enums.event.InitiativeType;
 import jakarta.persistence.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,7 +19,6 @@ import java.util.Set;
 @Getter
 @Setter
 public class Event {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

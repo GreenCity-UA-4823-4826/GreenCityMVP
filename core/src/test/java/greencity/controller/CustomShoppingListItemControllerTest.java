@@ -61,10 +61,10 @@ class CustomShoppingListItemControllerTest {
         validator.afterPropertiesSet();
 
         this.mockMvc = MockMvcBuilders
-                .standaloneSetup(customShoppingListItemController)
-                .setValidator(validator)
-                .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
-                .build();
+            .standaloneSetup(customShoppingListItemController)
+            .setValidator(validator)
+            .setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+            .build();
     }
 
     @Test
@@ -74,19 +74,19 @@ class CustomShoppingListItemControllerTest {
         CustomShoppingListItemResponseDto expectedItem = ModelUtils.getCustomShoppingListItemResponseDto();
 
         when(customShoppingListItemService.findAllAvailableCustomShoppingListItems(userId, habitId))
-                .thenReturn(List.of(expectedItem));
+            .thenReturn(List.of(expectedItem));
 
         mockMvc.perform(get(BASE_URL + "/{userId}/{habitId}", userId, habitId)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
-                .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
-                .andExpect(jsonPath("$[0].status").value(expectedItem.getStatus().name()));
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
+            .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
+            .andExpect(jsonPath("$[0].status").value(expectedItem.getStatus().name()));
 
         verify(customShoppingListItemService, times(1))
-                .findAllAvailableCustomShoppingListItems(userId, habitId);
+            .findAllAvailableCustomShoppingListItems(userId, habitId);
         verifyNoMoreInteractions(customShoppingListItemService);
     }
 
@@ -95,8 +95,8 @@ class CustomShoppingListItemControllerTest {
         Long habitId = 2L;
 
         mockMvc.perform(get(BASE_URL + "/{userId}/{habitId}", "abc", habitId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -106,8 +106,8 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         mockMvc.perform(get(BASE_URL + "/{userId}/{habitId}", userId, "abc")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -119,36 +119,36 @@ class CustomShoppingListItemControllerTest {
         String itemText = "Buy vegetables";
 
         CustomShoppingListItemSaveRequestDto itemDto =
-                CustomShoppingListItemSaveRequestDto.builder()
-                        .text(itemText)
-                        .build();
+            CustomShoppingListItemSaveRequestDto.builder()
+                .text(itemText)
+                .build();
 
         BulkSaveCustomShoppingListItemDto requestDto =
-                new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
+            new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
 
         CustomShoppingListItemResponseDto expectedItem =
-                ModelUtils.getCustomShoppingListItemResponseDto();
+            ModelUtils.getCustomShoppingListItemResponseDto();
 
         when(customShoppingListItemService.save(
-                any(BulkSaveCustomShoppingListItemDto.class), eq(userId), eq(habitAssignId)))
-                .thenReturn(List.of(expectedItem));
+            any(BulkSaveCustomShoppingListItemDto.class), eq(userId), eq(habitAssignId)))
+            .thenReturn(List.of(expectedItem));
 
         mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", userId, habitAssignId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
-                .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
-                .andExpect(jsonPath("$[0].status").value(expectedItem.getStatus().name()));
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
+            .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
+            .andExpect(jsonPath("$[0].status").value(expectedItem.getStatus().name()));
 
         ArgumentCaptor<BulkSaveCustomShoppingListItemDto> requestCaptor =
-                ArgumentCaptor.forClass(BulkSaveCustomShoppingListItemDto.class);
+            ArgumentCaptor.forClass(BulkSaveCustomShoppingListItemDto.class);
 
         verify(customShoppingListItemService, times(1))
-                .save(requestCaptor.capture(), eq(userId), eq(habitAssignId));
+            .save(requestCaptor.capture(), eq(userId), eq(habitAssignId));
 
         BulkSaveCustomShoppingListItemDto capturedRequestDto = requestCaptor.getValue();
 
@@ -163,17 +163,20 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
         Long habitAssignId = 10L;
         BulkSaveCustomShoppingListItemDto requestDto = new BulkSaveCustomShoppingListItemDto(List.of(
-                CustomShoppingListItemSaveRequestDto.builder().text("Item 1").build(),
-                CustomShoppingListItemSaveRequestDto.builder().text("Item 2").build()));
-        when(customShoppingListItemService.save(any(BulkSaveCustomShoppingListItemDto.class), eq(userId), eq(habitAssignId)))
-                .thenReturn(List.of(ModelUtils.getCustomShoppingListItemResponseDto(), ModelUtils.getCustomShoppingListItemResponseDto()));
+            CustomShoppingListItemSaveRequestDto.builder().text("Item 1").build(),
+            CustomShoppingListItemSaveRequestDto.builder().text("Item 2").build()));
+        when(customShoppingListItemService.save(any(BulkSaveCustomShoppingListItemDto.class), eq(userId),
+            eq(habitAssignId)))
+            .thenReturn(List.of(ModelUtils.getCustomShoppingListItemResponseDto(),
+                ModelUtils.getCustomShoppingListItemResponseDto()));
         mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", userId, habitAssignId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$", hasSize(2)));
-        ArgumentCaptor<BulkSaveCustomShoppingListItemDto> requestCaptor = ArgumentCaptor.forClass(BulkSaveCustomShoppingListItemDto.class);
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$", hasSize(2)));
+        ArgumentCaptor<BulkSaveCustomShoppingListItemDto> requestCaptor =
+            ArgumentCaptor.forClass(BulkSaveCustomShoppingListItemDto.class);
         verify(customShoppingListItemService).save(requestCaptor.capture(), eq(userId), eq(habitAssignId));
         assertEquals(2, requestCaptor.getValue().getCustomShoppingListItemSaveRequestDtoList().size());
         verifyNoMoreInteractions(customShoppingListItemService);
@@ -185,9 +188,9 @@ class CustomShoppingListItemControllerTest {
         Long habitAssignId = 10L;
 
         mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", userId, habitAssignId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -198,18 +201,18 @@ class CustomShoppingListItemControllerTest {
         Long habitAssignId = 10L;
 
         CustomShoppingListItemSaveRequestDto itemDto =
-                CustomShoppingListItemSaveRequestDto.builder()
-                        .text("")
-                        .build();
+            CustomShoppingListItemSaveRequestDto.builder()
+                .text("")
+                .build();
 
         BulkSaveCustomShoppingListItemDto requestDto =
-                new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
+            new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
 
         mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", userId, habitAssignId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isBadRequest());
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -219,18 +222,18 @@ class CustomShoppingListItemControllerTest {
         Long habitAssignId = 10L;
 
         CustomShoppingListItemSaveRequestDto itemDto =
-                CustomShoppingListItemSaveRequestDto.builder()
-                        .text("Buy vegetables")
-                        .build();
+            CustomShoppingListItemSaveRequestDto.builder()
+                .text("Buy vegetables")
+                .build();
 
         BulkSaveCustomShoppingListItemDto requestDto =
-                new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
+            new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
 
         mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", "abc", habitAssignId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isBadRequest());
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -240,18 +243,18 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         CustomShoppingListItemSaveRequestDto itemDto =
-                CustomShoppingListItemSaveRequestDto.builder()
-                        .text("Buy vegetables")
-                        .build();
+            CustomShoppingListItemSaveRequestDto.builder()
+                .text("Buy vegetables")
+                .build();
 
         BulkSaveCustomShoppingListItemDto requestDto =
-                new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
+            new BulkSaveCustomShoppingListItemDto(List.of(itemDto));
 
         mockMvc.perform(post(BASE_URL + "/{userId}/{habitAssignId}/custom-shopping-list-items", userId, "abc")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isBadRequest());
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -263,26 +266,26 @@ class CustomShoppingListItemControllerTest {
         Long itemId = 5L;
 
         CustomShoppingListItemResponseDto expectedItem = CustomShoppingListItemResponseDto.builder()
-                .id(itemId)
-                .text("Buy vegetables")
-                .status(itemStatus)
-                .build();
+            .id(itemId)
+            .text("Buy vegetables")
+            .status(itemStatus)
+            .build();
 
         when(customShoppingListItemService.updateItemStatus(userId, itemId, itemStatus.name()))
-                .thenReturn(expectedItem);
+            .thenReturn(expectedItem);
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .param("itemId", itemId.toString())
-                        .param("status", itemStatus.name())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(expectedItem.getId()))
-                .andExpect(jsonPath("$.text").value(expectedItem.getText()))
-                .andExpect(jsonPath("$.status").value(itemStatus.name()));
+            .param("itemId", itemId.toString())
+            .param("status", itemStatus.name())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(expectedItem.getId()))
+            .andExpect(jsonPath("$.text").value(expectedItem.getText()))
+            .andExpect(jsonPath("$.status").value(itemStatus.name()));
 
         verify(customShoppingListItemService, times(1))
-                .updateItemStatus(userId, itemId, itemStatus.name());
+            .updateItemStatus(userId, itemId, itemStatus.name());
         verifyNoMoreInteractions(customShoppingListItemService);
     }
 
@@ -292,9 +295,9 @@ class CustomShoppingListItemControllerTest {
         String itemStatus = ShoppingListItemStatus.DONE.name();
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .param("status", itemStatus)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .param("status", itemStatus)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -305,9 +308,9 @@ class CustomShoppingListItemControllerTest {
         Long itemId = 5L;
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .param("itemId", itemId.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .param("itemId", itemId.toString())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -317,10 +320,10 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .param("itemId", "abc")
-                        .param("status", ShoppingListItemStatus.DONE.name())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .param("itemId", "abc")
+            .param("status", ShoppingListItemStatus.DONE.name())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -331,12 +334,12 @@ class CustomShoppingListItemControllerTest {
         Long itemId = 5L;
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/done", userId)
-                        .param("itemId", itemId.toString()))
-                .andExpect(status().isOk())
-                .andExpect(content().string(""));
+            .param("itemId", itemId.toString()))
+            .andExpect(status().isOk())
+            .andExpect(content().string(""));
 
         verify(customShoppingListItemService, times(1))
-                .updateItemStatusToDone(userId, itemId);
+            .updateItemStatusToDone(userId, itemId);
         verifyNoMoreInteractions(customShoppingListItemService);
     }
 
@@ -345,8 +348,8 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/done", userId)
-                        .param("itemId", "abc"))
-                .andExpect(status().isBadRequest());
+            .param("itemId", "abc"))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -356,7 +359,7 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         mockMvc.perform(patch(BASE_URL + "/{userId}/done", userId))
-                .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -368,17 +371,17 @@ class CustomShoppingListItemControllerTest {
         List<Long> deletedIds = List.of(1L, 2L, 3L);
 
         when(customShoppingListItemService.bulkDelete(ids))
-                .thenReturn(deletedIds);
+            .thenReturn(deletedIds);
 
         mockMvc.perform(delete(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .param("ids", ids)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0]").value(deletedIds.get(0)))
-                .andExpect(jsonPath("$[1]").value(deletedIds.get(1)))
-                .andExpect(jsonPath("$[2]").value(deletedIds.get(2)));
+            .param("ids", ids)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(3)))
+            .andExpect(jsonPath("$[0]").value(deletedIds.get(0)))
+            .andExpect(jsonPath("$[1]").value(deletedIds.get(1)))
+            .andExpect(jsonPath("$[2]").value(deletedIds.get(2)));
 
         verify(customShoppingListItemService, times(1)).bulkDelete(ids);
         verifyNoMoreInteractions(customShoppingListItemService);
@@ -389,8 +392,8 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         mockMvc.perform(delete(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }
@@ -401,27 +404,27 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         CustomShoppingListItemResponseDto expectedItem = CustomShoppingListItemResponseDto.builder()
-                .id(1L)
-                .text("Buy vegetables")
-                .status(itemStatus)
-                .build();
+            .id(1L)
+            .text("Buy vegetables")
+            .status(itemStatus)
+            .build();
 
         when(customShoppingListItemService
-                .findAllUsersCustomShoppingListItemsByStatus(userId, itemStatus.name()))
-                .thenReturn(List.of(expectedItem));
+            .findAllUsersCustomShoppingListItemsByStatus(userId, itemStatus.name()))
+            .thenReturn(List.of(expectedItem));
 
         mockMvc.perform(get(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .param("status", itemStatus.name())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
-                .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
-                .andExpect(jsonPath("$[0].status").value(itemStatus.name()));
+            .param("status", itemStatus.name())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
+            .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
+            .andExpect(jsonPath("$[0].status").value(itemStatus.name()));
 
         verify(customShoppingListItemService, times(1))
-                .findAllUsersCustomShoppingListItemsByStatus(userId, itemStatus.name());
+            .findAllUsersCustomShoppingListItemsByStatus(userId, itemStatus.name());
         verifyNoMoreInteractions(customShoppingListItemService);
     }
 
@@ -430,32 +433,32 @@ class CustomShoppingListItemControllerTest {
         Long userId = 1L;
 
         CustomShoppingListItemResponseDto expectedItem =
-                ModelUtils.getCustomShoppingListItemResponseDto();
+            ModelUtils.getCustomShoppingListItemResponseDto();
 
         when(customShoppingListItemService
-                .findAllUsersCustomShoppingListItemsByStatus(eq(userId), isNull()))
-                .thenReturn(List.of(expectedItem));
+            .findAllUsersCustomShoppingListItemsByStatus(eq(userId), isNull()))
+            .thenReturn(List.of(expectedItem));
 
         mockMvc.perform(get(BASE_URL + "/{userId}/custom-shopping-list-items", userId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
-                .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
-                .andExpect(jsonPath("$[0].status").value(expectedItem.getStatus().name()));
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id").value(expectedItem.getId()))
+            .andExpect(jsonPath("$[0].text").value(expectedItem.getText()))
+            .andExpect(jsonPath("$[0].status").value(expectedItem.getStatus().name()));
 
         verify(customShoppingListItemService, times(1))
-                .findAllUsersCustomShoppingListItemsByStatus(eq(userId), isNull());
+            .findAllUsersCustomShoppingListItemsByStatus(eq(userId), isNull());
         verifyNoMoreInteractions(customShoppingListItemService);
     }
 
     @Test
     void getAllCustomShoppingItemsByStatus_InvalidUserId_ReturnsBadRequest() throws Exception {
         mockMvc.perform(get(BASE_URL + "/{userId}/custom-shopping-list-items", "abc")
-                        .param("status", ShoppingListItemStatus.ACTIVE.name())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .param("status", ShoppingListItemStatus.ACTIVE.name())
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(customShoppingListItemService);
     }

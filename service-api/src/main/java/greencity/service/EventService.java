@@ -3,13 +3,13 @@ package greencity.service;
 import greencity.dto.PageableDto;
 import greencity.dto.event.EventCreateRequestDto;
 import greencity.dto.event.EventResponseDto;
+import greencity.dto.event.EventUpdateRequestDto;
 import greencity.dto.event.MyEventResponseDto;
 import greencity.dto.event.EventPreviewResponseDto;
 import greencity.dto.event.EventSearchSuggestionResponseDto;
 import greencity.dto.user.UserVO;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
-
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -35,8 +35,8 @@ public interface EventService {
         UserVO userVO);
 
     /**
-     * Method for deleting an Event by id.
-     * Only the event organizer or admin can delete it.
+     * Method for deleting an Event by id. Only the event organizer or admin can
+     * delete it.
      *
      * @param eventId - id of the event to delete.
      * @param userVO  - current authorized user performing the deletion.
@@ -67,4 +67,15 @@ public interface EventService {
      * @return {@link Page} of {@link EventPreviewResponseDto} sorted by relevance.
      */
     Page<EventPreviewResponseDto> searchEvents(String query, Pageable pageable);
+     * Method for updating an existing Event. Only the event organizer or admin can
+     * edit it.
+     *
+     * @param eventId   - id of the event to update.
+     * @param dto       - dto with updated event data including image order.
+     * @param newImages - array of new images to upload, can be null.
+     * @param userVO    - current authorized user performing the update.
+     * @return updated event as {@link EventResponseDto}.
+     */
+    EventResponseDto updateEvent(Long eventId, EventUpdateRequestDto dto,
+        MultipartFile[] newImages, UserVO userVO);
 }

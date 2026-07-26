@@ -89,11 +89,11 @@ class EventControllerTest {
                 .build();
 
         when(errorAttributes.getErrorAttributes(any(), any(ErrorAttributeOptions.class)))
-                .thenReturn(new HashMap<>(Map.of(
-                        "path", "/events",
-                        "message", "error",
-                        "timestamp", java.time.LocalDateTime.now(),
-                        "trace", "")));
+            .thenReturn(new HashMap<>(Map.of(
+                "path", "/events",
+                "message", "error",
+                "timestamp", java.time.LocalDateTime.now(),
+                "trace", "")));
     }
 
     @Test
@@ -102,38 +102,38 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         String eventJson = "{"
-                + "\"title\":\"Park cleanup\","
-                + "\"description\":\"Join us for a park cleanup, it will be fun and useful\","
-                + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
-                + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
-                + "\"eventTypes\":[\"PLACE\"],"
-                + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
-                + "\"visibility\":\"OPEN\","
-                + "\"location\":\"Shevchenko Park\","
-                + "\"latitude\":49.83,"
-                + "\"longitude\":24.02"
-                + "}";
+            + "\"title\":\"Park cleanup\","
+            + "\"description\":\"Join us for a park cleanup, it will be fun and useful\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02"
+            + "}";
 
         MockMultipartFile eventPart = new MockMultipartFile(
-                "eventCreateRequestDto", "", "application/json", eventJson.getBytes());
+            "eventCreateRequestDto", "", "application/json", eventJson.getBytes());
 
         EventResponseDto responseDto = EventResponseDto.builder()
-                .id(1L)
-                .title("Park cleanup")
-                .organizerId(userVO.getId())
-                .build();
+            .id(1L)
+            .title("Park cleanup")
+            .organizerId(userVO.getId())
+            .build();
 
         when(eventService.createEvent(any(), any(), any(), any())).thenReturn(responseDto);
 
         mockMvc.perform(multipart(EVENTS_LINK)
-                        .file(eventPart)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(responseDto.getId()))
-                .andExpect(jsonPath("$.title").value(responseDto.getTitle()))
-                .andExpect(jsonPath("$.organizerId").value(responseDto.getOrganizerId()));
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(responseDto.getId()))
+            .andExpect(jsonPath("$.title").value(responseDto.getTitle()))
+            .andExpect(jsonPath("$.organizerId").value(responseDto.getOrganizerId()));
 
         verify(eventService, times(1)).createEvent(any(), any(), any(), any());
     }
@@ -144,23 +144,23 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         String eventJson = "{"
-                + "\"title\":\"\","
-                + "\"description\":\"Join us for a park cleanup, it will be fun and useful\","
-                + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
-                + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
-                + "\"eventTypes\":[\"PLACE\"],"
-                + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
-                + "\"location\":\"Shevchenko Park\""
-                + "}";
+            + "\"title\":\"\","
+            + "\"description\":\"Join us for a park cleanup, it will be fun and useful\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"location\":\"Shevchenko Park\""
+            + "}";
 
         MockMultipartFile eventPart = new MockMultipartFile(
-                "eventCreateRequestDto", "", "application/json", eventJson.getBytes());
+            "eventCreateRequestDto", "", "application/json", eventJson.getBytes());
 
         mockMvc.perform(multipart(EVENTS_LINK)
-                        .file(eventPart)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(eventService);
     }
@@ -171,22 +171,22 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         String eventJson = "{"
-                + "\"title\":\"Park cleanup\","
-                + "\"description\":\"Join us for a park cleanup, it will be fun and useful\","
-                + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
-                + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
-                + "\"eventTypes\":[\"PLACE\"],"
-                + "\"initiativeTypes\":[\"ENVIRONMENTAL\"]"
-                + "}";
+            + "\"title\":\"Park cleanup\","
+            + "\"description\":\"Join us for a park cleanup, it will be fun and useful\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"]"
+            + "}";
 
         MockMultipartFile eventPart = new MockMultipartFile(
-                "eventCreateRequestDto", "", "application/json", eventJson.getBytes());
+            "eventCreateRequestDto", "", "application/json", eventJson.getBytes());
 
         mockMvc.perform(multipart(EVENTS_LINK)
-                        .file(eventPart)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         verifyNoInteractions(eventService);
     }
@@ -197,9 +197,9 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         mockMvc.perform(delete(EVENTS_LINK + "/{eventId}", 1L)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
 
         verify(eventService, times(1)).deleteEvent(1L, userVO);
     }
@@ -210,12 +210,12 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         doThrow(new NotFoundException(ErrorMessage.EVENT_NOT_FOUND_BY_ID + 999L))
-                .when(eventService).deleteEvent(999L, userVO);
+            .when(eventService).deleteEvent(999L, userVO);
 
         mockMvc.perform(delete(EVENTS_LINK + "/{eventId}", 999L)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -224,12 +224,12 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         doThrow(new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION))
-                .when(eventService).deleteEvent(1L, userVO);
+            .when(eventService).deleteEvent(1L, userVO);
 
         mockMvc.perform(delete(EVENTS_LINK + "/{eventId}", 1L)
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
     }
 
     @Test
@@ -237,17 +237,17 @@ class EventControllerTest {
         UserVO userVO = ModelUtils.getUserVO();
         when(userService.findByEmail(anyString())).thenReturn(userVO);
         when(eventService.getMyEvents(any(), any()))
-                .thenReturn(new PageableDto<>(List.of(), 0, 0, 0));
+            .thenReturn(new PageableDto<>(List.of(), 0, 0, 0));
 
         mockMvc.perform(get(EVENTS_LINK + "/myEvents")
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.page").isArray())
-                .andExpect(jsonPath("$.totalElements").value(0))
-                .andExpect(jsonPath("$.currentPage").value(0))
-                .andExpect(jsonPath("$.totalPages").value(0));
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.page").isArray())
+            .andExpect(jsonPath("$.totalElements").value(0))
+            .andExpect(jsonPath("$.currentPage").value(0))
+            .andExpect(jsonPath("$.totalPages").value(0));
 
         verify(eventService, times(1)).getMyEvents(any(), any());
     }
@@ -258,12 +258,179 @@ class EventControllerTest {
         when(userService.findByEmail(anyString())).thenReturn(userVO);
 
         when(eventService.getMyEvents(any(), any()))
-                .thenThrow(new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
+            .thenThrow(new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_ID + userVO.getId()));
 
         mockMvc.perform(get(EVENTS_LINK + "/myEvents")
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateEvent_validRequest_returnsOkWithBody() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        EventResponseDto responseDto = EventResponseDto.builder()
+            .id(1L)
+            .title("Updated park cleanup")
+            .organizerId(userVO.getId())
+            .build();
+
+        when(eventService.updateEvent(any(), any(), any(), any())).thenReturn(responseDto);
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(responseDto.getId()))
+            .andExpect(jsonPath("$.title").value(responseDto.getTitle()))
+            .andExpect(jsonPath("$.organizerId").value(responseDto.getOrganizerId()));
+
+        verify(eventService, times(1)).updateEvent(any(), any(), any(), any());
+    }
+
+    @Test
+    void updateEvent_eventNotFound_returnsNotFound() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        when(eventService.updateEvent(any(), any(), any(), any()))
+            .thenThrow(new NotFoundException(ErrorMessage.EVENT_NOT_FOUND_BY_ID + 999L));
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 999L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateEvent_noPermission_returnsForbidden() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        when(eventService.updateEvent(any(), any(), any(), any()))
+            .thenThrow(new UserHasNoPermissionToAccessException(ErrorMessage.USER_HAS_NO_PERMISSION));
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void updateEvent_pastEvent_returnsBadRequest() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"Updated park cleanup\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"visibility\":\"OPEN\","
+            + "\"location\":\"Shevchenko Park\","
+            + "\"latitude\":49.83,"
+            + "\"longitude\":24.02,"
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        when(eventService.updateEvent(any(), any(), any(), any()))
+            .thenThrow(new BadRequestException(ErrorMessage.EVENT_ALREADY_PASSED));
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateEvent_blankTitle_returnsBadRequest() throws Exception {
+        UserVO userVO = ModelUtils.getUserVO();
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+
+        String eventJson = "{"
+            + "\"title\":\"\","
+            + "\"description\":\"Updated description that is long enough to pass validation\","
+            + "\"dates\":[{\"date\":\"2026-12-01\",\"startTime\":\"10:00:00\","
+            + "\"endTime\":\"14:00:00\",\"allDay\":false}],"
+            + "\"eventTypes\":[\"PLACE\"],"
+            + "\"initiativeTypes\":[\"ENVIRONMENTAL\"],"
+            + "\"location\":\"Shevchenko Park\","
+            + "\"imageOrder\":[]"
+            + "}";
+
+        MockMultipartFile eventPart = new MockMultipartFile(
+            "eventUpdateRequestDto", "", "application/json", eventJson.getBytes());
+
+        mockMvc.perform(multipart(HttpMethod.PUT, EVENTS_LINK + "/{eventId}", 1L)
+            .file(eventPart)
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(eventService);
     }
 
     @Test
