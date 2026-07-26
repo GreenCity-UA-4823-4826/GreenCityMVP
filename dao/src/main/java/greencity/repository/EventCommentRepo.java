@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventCommentRepo extends JpaRepository<EventComment, Long> {
     @Query("SELECT c FROM EventComment c JOIN FETCH c.user WHERE c.event.id = :eventId "
-        + "ORDER BY c.createdDate DESC")
+        + "ORDER BY c.createdDate DESC, c.id DESC")
     Page<EventComment> findAllByEventIdOrderByCreatedDateDesc(Long eventId, Pageable pageable);
 
     boolean existsByIdAndUserId(Long id, Long userId);
