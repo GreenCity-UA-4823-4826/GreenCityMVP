@@ -90,6 +90,13 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
+    public void deleteNotification(NotificationType notificationType, Long targetUserId, Long targetId) {
+        notificationRepo.deleteByTargetUserIdAndNotificationTypeAndTargetId(
+            targetUserId, notificationType, targetId);
+        sendNotificationCount(targetUserId);
+    }
+
+    @Override
     public void unreadNotification(Long notificationId) {
         Notification notification = notificationRepo.findById(notificationId)
             .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
