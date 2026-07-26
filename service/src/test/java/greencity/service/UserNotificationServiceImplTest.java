@@ -296,6 +296,7 @@ class UserNotificationServiceImplTest {
 
         userNotificationService.viewNotification(1L, 1L);
 
+        verify(notificationRepo).markNotificationAsViewedByIdAndTargetUserId(1L, 1L);
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 0L);
     }
 
@@ -323,6 +324,7 @@ class UserNotificationServiceImplTest {
 
         userNotificationService.unreadNotification(1L, 1L);
 
+        verify(notificationRepo).markNotificationAsNotViewedByIdAndTargetUserId(1L, 1L);
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 1L);
     }
 

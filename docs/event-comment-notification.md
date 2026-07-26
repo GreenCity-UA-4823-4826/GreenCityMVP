@@ -11,7 +11,7 @@ GitHub issue: none found in this repo's issue tracker — tracked externally as 
 
 **Acceptance criteria:**
 - Leaving a comment on someone else's event creates a notification for the event's organizer. Commenting on your own event never notifies you (self-comment guard).
-- The organizer's unread-notification counter increases by one.
+- The organizer's unread-notification counter increases by one **when a new unread notification is created** — merging an additional commenter into an already-unviewed notification for the same event does not increase it again (it's still one row).
 - The notification popup / "All notifications" page shows:
   `[Username] commented on your event [Event title]. [Date and Time]`
   - If 2+ users commented before the organizer viewed the notification, show the **last two** commenters' names joined with "and other users" (3+) or "and" (exactly 2).
@@ -23,7 +23,7 @@ GitHub issue: none found in this repo's issue tracker — tracked externally as 
 
 ## Architecture overview
 
-```
+```text
 EventCommentServiceImpl.save(eventId, request, commenter)
         │  (commenter != organizer)
         ▼
@@ -83,7 +83,7 @@ takes.
 
 ## Data model
 
-```
+```text
 events_comment
   id, text, created_date, user_id, event_id
   FK event_id -> events.id ON DELETE CASCADE
