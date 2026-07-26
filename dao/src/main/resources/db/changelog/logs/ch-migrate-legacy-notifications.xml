@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet id="ch-migrate-legacy-notifications-1" author="GreenCityMVP">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="notifications"/>
+                <columnExists tableName="notifications" columnName="receiver_id"/>
+                <not>
+                    <tableExists tableName="notifications_legacy"/>
+                </not>
+            </and>
+        </preConditions>
+
+        <renameTable oldTableName="notifications"
+                     newTableName="notifications_legacy"/>
+        <sql dbms="postgresql">
+            ALTER TABLE notifications_legacy
+            RENAME CONSTRAINT notifications_pkey TO notifications_legacy_pkey;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

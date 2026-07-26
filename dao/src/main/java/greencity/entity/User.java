@@ -5,8 +5,8 @@ import greencity.dto.user.RegistrationStatisticsDtoResponse;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
-import lombok.*;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.type.descriptor.jdbc.IntegerJdbcType;
 import java.time.LocalDateTime;
@@ -161,4 +161,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Filter> filters = new ArrayList<>();
+
+    @Column(name = "google_id")
+    private String googleId;
+
+    @Column(name = "is_google_auth")
+    private Boolean isGoogleAuth = false;
 }

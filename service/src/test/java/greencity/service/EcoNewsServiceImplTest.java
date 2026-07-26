@@ -9,6 +9,7 @@ import greencity.dto.PageableDto;
 import greencity.dto.econews.*;
 import greencity.dto.econewscomment.EcoNewsCommentVO;
 import greencity.dto.language.LanguageDTO;
+import greencity.dto.newssubscriber.NewsSubscriberResponseDto;
 import greencity.dto.search.SearchNewsDto;
 import greencity.dto.tag.TagVO;
 import greencity.dto.user.UserVO;
@@ -24,6 +25,7 @@ import greencity.filters.EcoNewsSpecification;
 import greencity.filters.SearchCriteria;
 import greencity.repository.EcoNewsRepo;
 import greencity.repository.EcoNewsSearchRepo;
+import greencity.message.AddEcoNewsMessage;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +59,9 @@ class EcoNewsServiceImplTest {
     ModelMapper modelMapper;
     @Mock
     RestClient restClient;
+
+    @Mock
+    NewsSubscriberService newsSubscriberService;
 
     @Mock
     TagsService tagService;
@@ -117,10 +122,13 @@ class EcoNewsServiceImplTest {
         when(tagService.findTagsByNamesAndType(anyList(), eq(TagType.ECO_NEWS))).thenReturn(tagVOList);
         when(ecoNewsRepo.save(any(EcoNews.class))).thenReturn(ecoNews);
         when(modelMapper.map(ecoNews, AddEcoNewsDtoResponse.class)).thenReturn(addEcoNewsDtoResponse);
+        when(newsSubscriberService.findAllActiveSubscribers())
+            .thenReturn(List.of(new NewsSubscriberResponseDto("subscriber@example.com", "token")));
 
         AddEcoNewsDtoResponse actual = ecoNewsService.save(addEcoNewsDtoRequest, image, TestConst.EMAIL);
 
         assertEquals(addEcoNewsDtoResponse, actual);
+        verify(restClient).sendNewsletter(any(AddEcoNewsMessage.class));
     }
 
     @Test

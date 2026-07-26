@@ -149,12 +149,17 @@ public class SecurityConfig {
                     "/user/emailNotifications",
                     "/user/activatedUsersAmount",
                     "/user/{userId}/habit/assign",
-                    "/token")
+                    "/token",
+                    "/news-subscribers/unsubscribe")
                 .permitAll()
                 .requestMatchers(HttpMethod.POST,
                     "/ownSecurity/signUp",
                     "/ownSecurity/signIn",
-                    "/ownSecurity/changePassword")
+                    "/ownSecurity/changePassword",
+                    "/news-subscribers")
+                .permitAll()
+                .requestMatchers(HttpMethod.DELETE,
+                    "/news-subscribers/{token}")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET,
                     "/achievements",
@@ -195,7 +200,8 @@ public class SecurityConfig {
                     "/habit/tags/search",
                     "/habit/search",
                     "/habit/{habitId}/friends/profile-pictures",
-                    "/events/myEvents")
+                    "/events/myEvents",
+                    "/friends/count")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
                     "/category",
