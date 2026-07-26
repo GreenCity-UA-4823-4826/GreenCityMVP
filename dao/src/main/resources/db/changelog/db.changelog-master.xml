@@ -185,4 +185,5 @@
     <include file="db/changelog/logs/ch-add-active-to-news-subscribers.xml"/>
     <include file="db/changelog/logs/ch-create-friendships-table-Vdovych.xml"/>
     <include file="db/changelog/logs/ch-add-table-events-comment.xml"/>
+    <include file="db/changelog/logs/ch-add-table-events-like.xml"/>
 </databaseChangeLog>
