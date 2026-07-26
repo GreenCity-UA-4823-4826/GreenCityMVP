@@ -13,6 +13,7 @@ import greencity.entity.event.EventAttendance;
 import greencity.entity.event.EventDate;
 import greencity.entity.event.EventImage;
 import greencity.enums.Role;
+import greencity.event.EventDeletedNotificationEvent;
 import greencity.event.EventUpdatedNotificationEvent;
 import greencity.exception.exceptions.BadRequestException;
 import greencity.exception.exceptions.NotFoundException;
@@ -89,6 +90,21 @@ public class EventServiceImpl implements EventService {
             }
         }
 
+        List<UserVO> attendees = attendanceRepo.findByEventId(eventId).stream()
+                .map(attendance -> modelMapper.map(attendance.getUser(), UserVO.class))
+                .filter(attendee -> !attendee.getId().equals(userVO.getId()))
+                .toList();
+        String eventTitle = event.getTitle();
+        if (!attendees.isEmpty()) {
+            eventPublisher.publishEvent(
+                    EventDeletedNotificationEvent.builder()
+                            .organizer(userVO)
+                            .attendees(attendees)
+                            .eventId(eventId)
+                            .eventTitle(eventTitle)
+                            .build()
+            );
+        }
         eventRepo.delete(event);
     }
 

@@ -1,6 +1,7 @@
 package greencity.listeners;
 
 import greencity.enums.NotificationType;
+import greencity.event.EventDeletedNotificationEvent;
 import greencity.event.EventUpdatedNotificationEvent;
 import greencity.service.UserNotificationService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,16 @@ public class EventNotificationListener {
             NotificationType.EVENT_EDITED,
             event.getEventId(),
             event.getEventTitle()));
+    }
+
+    @Async
+    @EventListener
+    public void onEventDeleted(EventDeletedNotificationEvent event) {
+        event.getAttendees().forEach(attendee -> userNotificationService.createNotification(
+                attendee,
+                event.getOrganizer(),
+                NotificationType.EVENT_CANCELLED,
+                event.getEventId(),
+                event.getEventTitle()));
     }
 }
