@@ -186,4 +186,5 @@
     <include file="db/changelog/logs/ch-create-friendships-table-Vdovych.xml"/>
     <include file="db/changelog/logs/ch-add-table-events-comment.xml"/>
     <include file="db/changelog/logs/ch-add-table-events-like.xml"/>
+    <include file="db/changelog/logs/ch-add-table-habit-like.xml"/>
 </databaseChangeLog>

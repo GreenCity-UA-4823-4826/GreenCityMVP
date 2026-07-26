@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="ch-add-table-habit-like-1" author="GreenCityMVP">
+        <createTable tableName="habit_like">
+            <column name="id" autoIncrement="true" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="created_date" type="timestamp with time zone">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="habit_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="ch-add-table-habit-like-2" author="GreenCityMVP">
+        <addForeignKeyConstraint baseTableName="habit_like"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_habit_like_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="habit_like"
+                                 baseColumnNames="habit_id"
+                                 constraintName="fk_habit_like_habit"
+                                 onDelete="CASCADE"
+                                 referencedTableName="habits"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="ch-add-table-habit-like-3" author="GreenCityMVP">
+        <createIndex indexName="idx_habit_like_habit_id" tableName="habit_like">
+            <column name="habit_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="ch-add-table-habit-like-4" author="GreenCityMVP">
+        <addUniqueConstraint tableName="habit_like"
+                             columnNames="habit_id, user_id"
+                             constraintName="uq_habit_like_habit_user"/>
+    </changeSet>
+</databaseChangeLog>
