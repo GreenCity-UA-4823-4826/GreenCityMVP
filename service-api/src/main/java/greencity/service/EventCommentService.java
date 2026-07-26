@@ -30,7 +30,8 @@ public interface EventCommentService {
     PageableDto<EventCommentDto> findAllComments(Pageable pageable, Long eventId);
 
     /**
-     * Method to delete a comment. Only the comment's author can delete it.
+     * Method to delete a comment. The comment can be deleted by its author or an
+     * administrator.
      *
      * @param id   id of the comment to delete.
      * @param user current {@link UserVO} that wants to delete.

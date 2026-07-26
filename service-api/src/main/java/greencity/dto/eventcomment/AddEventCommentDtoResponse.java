@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,12 +21,13 @@ public class AddEventCommentDtoResponse {
     @Min(1)
     private Long id;
 
-    @NotEmpty
+    @NotNull
+    @Valid
     private EventCommentAuthorDto author;
 
     @NotEmpty
     private String text;
 
-    @NotEmpty
+    @NotNull
     private LocalDateTime createdDate;
 }

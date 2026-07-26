@@ -23,6 +23,7 @@ class EventCommentNotificationListenerTest {
     @Test
     void onEventComment_CommenterIsNotOrganizer_CreatesNotification() {
         UserVO organizer = getUserVO();
+        organizer.setId(1L);
         UserVO commenter = getUserVO();
         commenter.setId(2L);
         EventCommentNotificationEvent event = EventCommentNotificationEvent.builder()
@@ -40,9 +41,13 @@ class EventCommentNotificationListenerTest {
 
     @Test
     void onEventComment_CommenterIsOrganizer_DoesNotCreateNotification() {
+        UserVO organizer = getUserVO();
+        organizer.setId(1L);
+        UserVO commenter = getUserVO();
+        commenter.setId(1L);
         EventCommentNotificationEvent event = EventCommentNotificationEvent.builder()
-            .organizer(getUserVO())
-            .commenter(getUserVO())
+            .organizer(organizer)
+            .commenter(commenter)
             .eventId(1L)
             .eventTitle("title")
             .build();

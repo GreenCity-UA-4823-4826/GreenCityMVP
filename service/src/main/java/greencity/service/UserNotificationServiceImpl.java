@@ -91,19 +91,19 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
     @Override
     public void unreadNotification(Long userId, Long notificationId) {
-        if (!notificationRepo.existsByIdAndTargetUserId(notificationId, userId)) {
+        int updated = notificationRepo.markNotificationAsNotViewedByIdAndTargetUserId(notificationId, userId);
+        if (updated == 0) {
             throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
         }
-        notificationRepo.markNotificationAsNotViewed(notificationId);
         sendNotificationCount(userId);
     }
 
     @Override
     public void viewNotification(Long userId, Long notificationId) {
-        if (!notificationRepo.existsByIdAndTargetUserId(notificationId, userId)) {
+        int updated = notificationRepo.markNotificationAsViewedByIdAndTargetUserId(notificationId, userId);
+        if (updated == 0) {
             throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
         }
-        notificationRepo.markNotificationAsViewed(notificationId);
         sendNotificationCount(userId);
     }
 
