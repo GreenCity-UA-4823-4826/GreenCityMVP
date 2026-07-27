@@ -29,7 +29,9 @@ public interface NotificationRepo extends JpaRepository<Notification, Long>, Jpa
 
     void deleteNotificationByIdAndTargetUserId(Long notificationId, Long targetUserId);
 
-    long countByTargetUserIdAndViewedIsFalse(Long userId);
+    @Query("SELECT COUNT(u) FROM Notification n JOIN n.actionUsers u "
+        + "WHERE n.targetUser.id = :userId AND n.viewed = false")
+    long countUnreadActionUsersByTargetUserId(Long userId);
 
     boolean existsByIdAndTargetUserId(Long notificationId, Long targetUserId);
 }
