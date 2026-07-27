@@ -103,6 +103,13 @@ public class UserNotificationServiceImpl implements UserNotificationService {
         notificationRepo.deleteNotificationByIdAndTargetUserId(notificationId, userId);
         sendNotificationCount(userId);
     }
+  
+    @Override
+    public void deleteNotification(NotificationType notificationType, Long targetUserId, Long targetId) {
+        notificationRepo.deleteByTargetUserIdAndNotificationTypeAndTargetId(
+            targetUserId, notificationType, targetId);
+        sendNotificationCount(targetUserId);
+    }
 
     @Override
     public void unreadNotification(Long userId, Long notificationId) {

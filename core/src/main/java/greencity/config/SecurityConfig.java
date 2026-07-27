@@ -46,6 +46,7 @@ public class SecurityConfig {
     private static final String CUSTOM_SHOPPING_LIST_ITEMS = "/{userId}/custom-shopping-list-items";
     private static final String HABIT_ASSIGN_ID = "/habit/assign/{habitId}";
     private static final String USER_SHOPPING_LIST = "/user/shopping-list-items";
+    private static final String FRIENDS = "/friends";
     private static final String EVENT_ID = "/events/{eventId}";
     private final JwtTool jwtTool;
     private final UserService userService;
@@ -206,7 +207,11 @@ public class SecurityConfig {
                     "/events/search",
                     "/events/search/suggestions",
                     "/habit/invites/sent",
-                    "/friends/count")
+                    FRIENDS,
+                    FRIENDS + "/count",
+                    FRIENDS + "/user",
+                    FRIENDS + "/user/{userId}",
+                    FRIENDS + "/search")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
                     "/category",
@@ -237,7 +242,8 @@ public class SecurityConfig {
                     "/habit/invites/{habitId}",
                     "/habit/invites/{inviteId}/cancel",
                     "/habit/invites/{inviteId}/accept",
-                    "/habit/invites/{inviteId}/decline")
+                    "/habit/invites/{inviteId}/decline",
+                    FRIENDS + "/{receiverId}")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PUT,
                     "/habit/statistic/{id}",
@@ -261,7 +267,9 @@ public class SecurityConfig {
                     USER_SHOPPING_LIST + "/{shoppingListItemId}/status/{status}",
                     USER_SHOPPING_LIST + "/{userShoppingListItemId}",
                     "/user/profilePicture",
-                    "/user/deleteProfilePicture")
+                    "/user/deleteProfilePicture",
+                    FRIENDS + "/{requesterId}/accept",
+                    FRIENDS + "/{requesterId}/decline")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.DELETE,
                     ECONEWS_COMMENTS,
@@ -277,7 +285,10 @@ public class SecurityConfig {
                     "/favorite_place/{placeId}",
                     "/social-networks",
                     USER_CUSTOM_SHOPPING_LIST_ITEMS,
-                    USER_SHOPPING_LIST + "/user-shopping-list-items")
+                    USER_SHOPPING_LIST + "/user-shopping-list-items",
+                    FRIENDS + "/{receiverId}",
+                    FRIENDS + "/{receiverId}/cancelRequest",
+                    FRIENDS + "/{friendId}/remove")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.GET,
                     NOTIFICATIONS,

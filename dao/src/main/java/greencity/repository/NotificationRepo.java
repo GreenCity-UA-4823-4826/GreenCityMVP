@@ -34,4 +34,7 @@ public interface NotificationRepo extends JpaRepository<Notification, Long>, Jpa
     long countUnreadActionUsersByTargetUserId(Long userId);
 
     boolean existsByIdAndTargetUserId(Long notificationId, Long targetUserId);
+
+    void deleteByTargetUserIdAndNotificationTypeAndTargetId(
+            Long targetUserId, NotificationType notificationType, Long targetId);
 }
