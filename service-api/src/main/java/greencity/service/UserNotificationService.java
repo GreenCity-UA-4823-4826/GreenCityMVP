@@ -26,8 +26,7 @@ public interface UserNotificationService {
 
     void viewNotification(Long userId, Long notificationId);
 
-    void viewNotification(Long notificationId);
-
     void deleteNotification(NotificationType notificationType, Long targetUserId, Long targetId);
+
     long countUnreadNotifications(Long userId);
 }
