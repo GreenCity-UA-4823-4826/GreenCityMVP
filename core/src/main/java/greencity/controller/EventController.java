@@ -3,9 +3,7 @@ package greencity.controller;
 import greencity.annotations.CurrentUser;
 import greencity.constant.HttpStatuses;
 import greencity.dto.PageableDto;
-import greencity.dto.event.EventCreateRequestDto;
-import greencity.dto.event.EventResponseDto;
-import greencity.dto.event.MyEventResponseDto;
+import greencity.dto.event.*;
 import greencity.dto.user.UserVO;
 import greencity.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,11 +23,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/events")
 public class EventController {
-
     private final EventService eventService;
 
     /**
@@ -57,7 +58,6 @@ public class EventController {
         @Parameter(description = "Index of the main image in the images array") @RequestParam(
             required = false) Integer mainImageIndex,
         @Parameter(hidden = true) @CurrentUser UserVO user) {
-
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(eventService.createEvent(eventCreateRequestDto, images, mainImageIndex, user));
     }
@@ -80,8 +80,36 @@ public class EventController {
     public ResponseEntity<PageableDto<MyEventResponseDto>> getMyEvents(
         @Parameter(hidden = true) @CurrentUser UserVO userVO,
         Pageable pageable) {
-
         return ResponseEntity.ok(eventService.getMyEvents(userVO, pageable));
+    }
+
+    /**
+     * Method for updating an existing Event by id. Only the event organizer or
+     * admin can perform this action.
+     *
+     * @param eventId               - id of the event to update.
+     * @param eventUpdateRequestDto - dto with updated event data.
+     * @param newImages             - array of new images to upload, can be null.
+     * @param userVO                - current authorized user performing the update.
+     * @return {@link ResponseEntity} with updated {@link EventResponseDto}.
+     */
+    @Operation(summary = "Update event by id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
+            content = @Content(schema = @Schema(implementation = EventResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED),
+        @ApiResponse(responseCode = "403", description = HttpStatuses.FORBIDDEN),
+        @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
+    })
+    @PutMapping(value = "/{eventId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<EventResponseDto> updateEvent(
+        @PathVariable Long eventId,
+        @Parameter(description = "Updated event data") @Valid @RequestPart EventUpdateRequestDto eventUpdateRequestDto,
+        @Parameter(description = "New event images, max 5") @RequestPart(required = false) MultipartFile[] newImages,
+        @Parameter(hidden = true) @CurrentUser UserVO userVO) {
+        return ResponseEntity.ok(
+            eventService.updateEvent(eventId, eventUpdateRequestDto, newImages, userVO));
     }
 
     /**
@@ -105,5 +133,45 @@ public class EventController {
         @Parameter(hidden = true) @CurrentUser UserVO userVO) {
         eventService.deleteEvent(eventId, userVO);
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Method for getting event title suggestions for search dropdown.
+     *
+     * @param query - search string for event title suggestions (max 64 characters).
+     * @return {@link ResponseEntity} with list of {@link EventSearchSuggestionResponseDto}.
+     */
+    @Operation(summary = "Get user's search suggestions by title in the dropdown")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
+                    content = @Content(schema = @Schema(implementation = EventSearchSuggestionResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+    })
+    @GetMapping("/search/suggestions")
+    public ResponseEntity<List<EventSearchSuggestionResponseDto>> getSearchSuggestions(
+            @RequestParam String query) {
+        return ResponseEntity.ok(eventService.getSearchSuggestions(query));
+    }
+
+    /**
+     * Method for searching events by title keyword.
+     *
+     * @param query - search string to match against event titles (max 64 characters).
+     * @return {@link ResponseEntity} with list of {@link EventPreviewResponseDto} sorted by relevance.
+     */
+    @Operation(summary = "Search for events")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = HttpStatuses.OK,
+                    content = @Content(schema = @Schema(implementation = EventPreviewResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+    })
+    @GetMapping("/search")
+    public ResponseEntity<Page<EventPreviewResponseDto>> searchEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String query) {
+        return ResponseEntity.ok(eventService.searchEvents(query, PageRequest.of(page, size)));
     }
 }
