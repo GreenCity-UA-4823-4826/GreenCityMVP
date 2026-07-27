@@ -56,7 +56,8 @@ public interface EventService {
      * Method for getting event title suggestions for search dropdown.
      *
      * @param query - search string (minimum 3 characters).
-     * @return list of {@link EventSearchSuggestionResponseDto} with matching event titles.
+     * @return list of {@link EventSearchSuggestionResponseDto} with matching event
+     *         titles.
      */
     List<EventSearchSuggestionResponseDto> getSearchSuggestions(String query);
 
@@ -67,6 +68,8 @@ public interface EventService {
      * @return {@link Page} of {@link EventPreviewResponseDto} sorted by relevance.
      */
     Page<EventPreviewResponseDto> searchEvents(String query, Pageable pageable);
+
+    /**
      * Method for updating an existing Event. Only the event organizer or admin can
      * edit it.
      *
