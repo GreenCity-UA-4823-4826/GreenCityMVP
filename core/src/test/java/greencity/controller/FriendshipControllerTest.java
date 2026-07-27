@@ -139,6 +139,22 @@ class FriendshipControllerTest {
     }
 
     @Test
+    void getUserFriendsByRequestParam_validRequest_returnsProfileOwnerFriends() throws Exception {
+        when(friendshipService.getFriends(eq(4L), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 10), 0));
+
+        mockMvc.perform(get(FRIENDS_LINK + "/user")
+                .param("userId", "4")
+                .param("page", "0")
+                .param("size", "10")
+                .principal(principal)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(friendshipService).getFriends(eq(4L), any(Pageable.class));
+    }
+
+    @Test
     void searchFriends_validRequest_returnsOk() throws Exception {
         UserVO userVO = ModelUtils.getUserVO();
         UserFriendDto dto = UserFriendDto.builder()

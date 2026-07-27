@@ -198,6 +198,7 @@ public class SecurityConfig {
                     "/events/myEvents",
                     FRIENDS,
                     FRIENDS + "/count",
+                    FRIENDS + "/user",
                     FRIENDS + "/user/{userId}",
                     FRIENDS + "/search")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)

@@ -40,6 +40,13 @@ public class FriendshipController {
         return ResponseEntity.ok(friendshipService.getFriends(userId, pageable));
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<Page<UserFriendDto>> getUserFriendsByRequestParam(
+        @RequestParam Long userId,
+        Pageable pageable) {
+        return ResponseEntity.ok(friendshipService.getFriends(userId, pageable));
+    }
+
     /**
      * Method for getting the count of friends for the current authorized user.
      *
