@@ -188,4 +188,5 @@
     <include file="db/changelog/logs/ch-add-table-events-comment.xml"/>
     <include file="db/changelog/logs/ch-add-table-habit-comment.xml"/>
     <include file="db/changelog/logs/ch-add-table-events-like.xml"/>
+    <include file="db/changelog/logs/ch-add-table-habit-like.xml"/>
 </databaseChangeLog>
