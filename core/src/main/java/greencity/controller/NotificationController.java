@@ -62,8 +62,10 @@ public class NotificationController {
         @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
     })
     @PostMapping("/{notificationId}/viewNotification")
-    public ResponseEntity<Object> viewNotification(@PathVariable Long notificationId) {
-        userNotificationService.viewNotification(notificationId);
+    public ResponseEntity<Object> viewNotification(
+        @Parameter(hidden = true) @CurrentUserId Long userId,
+        @PathVariable Long notificationId) {
+        userNotificationService.viewNotification(userId, notificationId);
         return ResponseEntity.ok().build();
     }
 
@@ -75,8 +77,10 @@ public class NotificationController {
         @ApiResponse(responseCode = "404", description = HttpStatuses.NOT_FOUND)
     })
     @PostMapping("/{notificationId}/unreadNotification")
-    public ResponseEntity<Object> unreadNotification(@PathVariable Long notificationId) {
-        userNotificationService.unreadNotification(notificationId);
+    public ResponseEntity<Object> unreadNotification(
+        @Parameter(hidden = true) @CurrentUserId Long userId,
+        @PathVariable Long notificationId) {
+        userNotificationService.unreadNotification(userId, notificationId);
         return ResponseEntity.ok().build();
     }
 
@@ -98,5 +102,16 @@ public class NotificationController {
     @MessageMapping("/notifications")
     public void notificationSocket(@Payload ActionDto user) {
         userNotificationService.notificationSocket(user);
+    }
+
+    @Operation(summary = "Get count of current user's unread notifications.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+    })
+    @GetMapping("/count")
+    public ResponseEntity<Long> countUnreadNotifications(
+        @Parameter(hidden = true) @CurrentUserId Long userId) {
+        return ResponseEntity.ok(userNotificationService.countUnreadNotifications(userId));
     }
 }

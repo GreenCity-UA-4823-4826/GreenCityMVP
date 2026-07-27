@@ -68,7 +68,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
 
     @Override
     public void notificationSocket(ActionDto user) {
-        Long count = notificationRepo.countByTargetUserIdAndViewedIsFalse(user.getUserId());
+        Long count = notificationRepo.countUnreadActionUsersByTargetUserId(user.getUserId());
         messagingTemplate.convertAndSend(TOPIC + user.getUserId() + NOTIFICATION, count);
     }
 
@@ -82,13 +82,28 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
+    public void removeActionUser(UserVO targetUser, UserVO actionUser, NotificationType notificationType,
+        Long targetId) {
+        findExistingNotification(targetUser.getId(), notificationType, targetId).ifPresent(notification -> {
+            notification.getActionUsers().removeIf(user -> user.getId().equals(actionUser.getId()));
+            if (notification.getActionUsers().isEmpty()) {
+                notificationRepo.delete(notification);
+            } else {
+                notificationRepo.save(notification);
+            }
+            sendNotificationCount(targetUser.getId());
+        });
+    }
+
+    @Override
     public void deleteNotification(Long userId, Long notificationId) {
         if (!notificationRepo.existsByIdAndTargetUserId(notificationId, userId)) {
             throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
         }
         notificationRepo.deleteNotificationByIdAndTargetUserId(notificationId, userId);
+        sendNotificationCount(userId);
     }
-
+  
     @Override
     public void deleteNotification(NotificationType notificationType, Long targetUserId, Long targetId) {
         notificationRepo.deleteByTargetUserIdAndNotificationTypeAndTargetId(
@@ -97,21 +112,26 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public void unreadNotification(Long notificationId) {
-        Notification notification = notificationRepo.findById(notificationId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
-        Long userId = notification.getTargetUser().getId();
-        notificationRepo.markNotificationAsNotViewed(notificationId);
+    public void unreadNotification(Long userId, Long notificationId) {
+        int updated = notificationRepo.markNotificationAsNotViewedByIdAndTargetUserId(notificationId, userId);
+        if (updated == 0) {
+            throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
+        }
         sendNotificationCount(userId);
     }
 
     @Override
-    public void viewNotification(Long notificationId) {
-        Notification notification = notificationRepo.findById(notificationId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
-        Long userId = notification.getTargetUser().getId();
-        notificationRepo.markNotificationAsViewed(notificationId);
+    public void viewNotification(Long userId, Long notificationId) {
+        int updated = notificationRepo.markNotificationAsViewedByIdAndTargetUserId(notificationId, userId);
+        if (updated == 0) {
+            throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
+        }
         sendNotificationCount(userId);
+    }
+
+    @Override
+    public long countUnreadNotifications(Long userId) {
+        return notificationRepo.countUnreadActionUsersByTargetUserId(userId);
     }
 
     private PageableAdvancedDto<NotificationDto> buildPageableAdvancedDto(Page<Notification> notifications,
@@ -147,7 +167,7 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     private void sendNotificationCount(Long userId) {
-        long count = notificationRepo.countByTargetUserIdAndViewedIsFalse(userId);
+        long count = notificationRepo.countUnreadActionUsersByTargetUserId(userId);
         messagingTemplate.convertAndSend(TOPIC + userId + NOTIFICATION, count);
     }
 

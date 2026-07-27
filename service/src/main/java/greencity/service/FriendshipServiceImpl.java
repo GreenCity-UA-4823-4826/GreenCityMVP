@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class FriendshipServiceImpl implements FriendshipService{
+public class FriendshipServiceImpl implements FriendshipService {
     private final FriendshipRepo friendshipRepo;
     private final UserFriendDtoMapper userFriendDtoMapper;
     private final UserRepo userRepo;

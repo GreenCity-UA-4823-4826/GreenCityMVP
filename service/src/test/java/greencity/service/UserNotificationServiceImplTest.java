@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -137,7 +138,7 @@ class UserNotificationServiceImplTest {
     @Test
     void notificationSocket_UserHasUnreadNotifications_SendsCountToUserTopic() {
         ActionDto actionDto = ActionDto.builder().userId(1L).build();
-        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(3L);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(3L);
 
         userNotificationService.notificationSocket(actionDto);
 
@@ -157,7 +158,7 @@ class UserNotificationServiceImplTest {
         when(modelMapper.map(targetUserVO, User.class)).thenReturn(getUser());
         when(modelMapper.map(actionUserVO, User.class)).thenReturn(actionUser);
         when(notificationRepo.save(any(Notification.class))).then(AdditionalAnswers.returnsFirstArg());
-        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(1L);
 
         userNotificationService.createNotification(targetUserVO, actionUserVO,
             NotificationType.ECONEWS_COMMENT, 1L, "title");
@@ -187,7 +188,7 @@ class UserNotificationServiceImplTest {
             1L, NotificationType.ECONEWS_COMMENT, 1L)).thenReturn(Optional.of(existing));
         when(modelMapper.map(actionUserVO, User.class)).thenReturn(actionUser);
         when(notificationRepo.save(existing)).thenReturn(existing);
-        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(1L);
 
         userNotificationService.createNotification(targetUserVO, actionUserVO,
             NotificationType.ECONEWS_COMMENT, 1L, "new title");
@@ -209,7 +210,7 @@ class UserNotificationServiceImplTest {
             1L, NotificationType.ECONEWS_COMMENT, 1L)).thenReturn(Optional.of(existing));
         when(modelMapper.map(actionUserVO, User.class)).thenReturn(getUser());
         when(notificationRepo.save(existing)).thenReturn(existing);
-        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(1L);
 
         userNotificationService.createNotification(targetUserVO, actionUserVO,
             NotificationType.ECONEWS_COMMENT, 1L, "title");
@@ -218,12 +219,68 @@ class UserNotificationServiceImplTest {
     }
 
     @Test
+    void removeActionUser_NotificationHasOtherActionUsers_RemovesActionUserAndSaves() {
+        UserVO targetUserVO = getUserVO();
+        UserVO actionUserVO = getUserVO();
+        actionUserVO.setId(2L);
+        User remainingUser = buildUser(3L, "Olha");
+        Notification existing = getNotification();
+        existing.setActionUsers(new ArrayList<>(List.of(buildUser(2L, "Maria"), remainingUser)));
+
+        when(notificationRepo.findNotificationByTargetUserIdAndNotificationTypeAndTargetIdAndViewedIsFalse(
+            1L, NotificationType.EVENT_LIKE, 1L)).thenReturn(Optional.of(existing));
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(1L);
+
+        userNotificationService.removeActionUser(targetUserVO, actionUserVO, NotificationType.EVENT_LIKE, 1L);
+
+        assertEquals(List.of(remainingUser), existing.getActionUsers());
+        verify(notificationRepo).save(existing);
+        verify(notificationRepo, never()).delete(existing);
+        verify(messagingTemplate).convertAndSend("/topic/1/notification", 1L);
+    }
+
+    @Test
+    void removeActionUser_NotificationBecomesEmpty_DeletesNotification() {
+        UserVO targetUserVO = getUserVO();
+        UserVO actionUserVO = getUserVO();
+        Notification existing = getNotification();
+        existing.setActionUsers(new ArrayList<>(List.of(getUser())));
+
+        when(notificationRepo.findNotificationByTargetUserIdAndNotificationTypeAndTargetIdAndViewedIsFalse(
+            1L, NotificationType.EVENT_LIKE, 1L)).thenReturn(Optional.of(existing));
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(0L);
+
+        userNotificationService.removeActionUser(targetUserVO, actionUserVO, NotificationType.EVENT_LIKE, 1L);
+
+        verify(notificationRepo).delete(existing);
+        verify(notificationRepo, never()).save(existing);
+        verify(messagingTemplate).convertAndSend("/topic/1/notification", 0L);
+    }
+
+    @Test
+    void removeActionUser_NoUnviewedNotificationExists_DoesNothing() {
+        UserVO targetUserVO = getUserVO();
+        UserVO actionUserVO = getUserVO();
+
+        when(notificationRepo.findNotificationByTargetUserIdAndNotificationTypeAndTargetIdAndViewedIsFalse(
+            1L, NotificationType.EVENT_LIKE, 1L)).thenReturn(Optional.empty());
+
+        userNotificationService.removeActionUser(targetUserVO, actionUserVO, NotificationType.EVENT_LIKE, 1L);
+
+        verify(notificationRepo, never()).save(any(Notification.class));
+        verify(notificationRepo, never()).delete(any(Notification.class));
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Long.class));
+    }
+
+    @Test
     void deleteNotification_NotificationBelongsToUser_DeletesNotification() {
         when(notificationRepo.existsByIdAndTargetUserId(1L, 1L)).thenReturn(true);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(0L);
 
         userNotificationService.deleteNotification(1L, 1L);
 
         verify(notificationRepo).deleteNotificationByIdAndTargetUserId(1L, 1L);
+        verify(messagingTemplate).convertAndSend("/topic/1/notification", 0L);
     }
 
     @Test
@@ -235,42 +292,67 @@ class UserNotificationServiceImplTest {
     }
 
     @Test
-    void viewNotification_NotificationExists_MarksViewedAndSendsUnreadCount() {
-        Notification notification = getNotification();
-        when(notificationRepo.findById(1L)).thenReturn(Optional.of(notification));
-        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(0L);
+    void viewNotification_NotificationBelongsToUser_MarksViewedAndSendsUnreadCount() {
+        when(notificationRepo.markNotificationAsViewedByIdAndTargetUserId(1L, 1L)).thenReturn(1);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(0L);
 
-        userNotificationService.viewNotification(1L);
+        userNotificationService.viewNotification(1L, 1L);
 
-        verify(notificationRepo).markNotificationAsViewed(1L);
+        verify(notificationRepo).markNotificationAsViewedByIdAndTargetUserId(1L, 1L);
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 0L);
     }
 
     @Test
     void viewNotification_NotificationMissing_ThrowsNotFoundException() {
-        when(notificationRepo.findById(1L)).thenReturn(Optional.empty());
+        when(notificationRepo.markNotificationAsViewedByIdAndTargetUserId(1L, 1L)).thenReturn(0);
 
-        assertThrows(NotFoundException.class, () -> userNotificationService.viewNotification(1L));
-        verify(notificationRepo, never()).markNotificationAsViewed(1L);
+        assertThrows(NotFoundException.class, () -> userNotificationService.viewNotification(1L, 1L));
+        verify(notificationRepo, never()).countUnreadActionUsersByTargetUserId(1L);
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Long.class));
     }
 
     @Test
-    void unreadNotification_NotificationExists_MarksNotViewedAndSendsUnreadCount() {
-        Notification notification = getNotification();
-        when(notificationRepo.findById(1L)).thenReturn(Optional.of(notification));
-        when(notificationRepo.countByTargetUserIdAndViewedIsFalse(1L)).thenReturn(1L);
+    void viewNotification_NotificationDoesNotBelongToUser_ThrowsNotFoundException() {
+        when(notificationRepo.markNotificationAsViewedByIdAndTargetUserId(1L, 2L)).thenReturn(0);
 
-        userNotificationService.unreadNotification(1L);
+        assertThrows(NotFoundException.class, () -> userNotificationService.viewNotification(2L, 1L));
+        verify(notificationRepo, never()).countUnreadActionUsersByTargetUserId(2L);
+    }
 
-        verify(notificationRepo).markNotificationAsNotViewed(1L);
+    @Test
+    void unreadNotification_NotificationBelongsToUser_MarksNotViewedAndSendsUnreadCount() {
+        when(notificationRepo.markNotificationAsNotViewedByIdAndTargetUserId(1L, 1L)).thenReturn(1);
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(1L);
+
+        userNotificationService.unreadNotification(1L, 1L);
+
+        verify(notificationRepo).markNotificationAsNotViewedByIdAndTargetUserId(1L, 1L);
         verify(messagingTemplate).convertAndSend("/topic/1/notification", 1L);
     }
 
     @Test
     void unreadNotification_NotificationMissing_ThrowsNotFoundException() {
-        when(notificationRepo.findById(1L)).thenReturn(Optional.empty());
+        when(notificationRepo.markNotificationAsNotViewedByIdAndTargetUserId(1L, 1L)).thenReturn(0);
 
-        assertThrows(NotFoundException.class, () -> userNotificationService.unreadNotification(1L));
-        verify(notificationRepo, never()).markNotificationAsNotViewed(1L);
+        assertThrows(NotFoundException.class, () -> userNotificationService.unreadNotification(1L, 1L));
+        verify(notificationRepo, never()).countUnreadActionUsersByTargetUserId(1L);
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Long.class));
+    }
+
+    @Test
+    void unreadNotification_NotificationDoesNotBelongToUser_ThrowsNotFoundException() {
+        when(notificationRepo.markNotificationAsNotViewedByIdAndTargetUserId(1L, 2L)).thenReturn(0);
+
+        assertThrows(NotFoundException.class, () -> userNotificationService.unreadNotification(2L, 1L));
+        verify(notificationRepo, never()).countUnreadActionUsersByTargetUserId(2L);
+    }
+
+    @Test
+    void countUnreadNotifications_ReturnsCountFromRepo() {
+        when(notificationRepo.countUnreadActionUsersByTargetUserId(1L)).thenReturn(5L);
+
+        long result = userNotificationService.countUnreadNotifications(1L);
+
+        assertEquals(5L, result);
     }
 }
