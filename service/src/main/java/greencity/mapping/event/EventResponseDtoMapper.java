@@ -6,16 +6,13 @@ import greencity.dto.event.EventResponseDto;
 import greencity.entity.event.Event;
 import greencity.entity.event.EventDate;
 import greencity.entity.event.EventImage;
-
 import org.modelmapper.AbstractConverter;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class EventResponseDtoMapper extends AbstractConverter<Event, EventResponseDto> {
-
     @Override
     public EventResponseDto convert(Event event) {
         return EventResponseDto.builder()
