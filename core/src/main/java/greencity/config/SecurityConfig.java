@@ -202,6 +202,7 @@ public class SecurityConfig {
                     "/habit/{habitId}/friends/profile-pictures",
                     "/events/myEvents",
                     "/events/comments/{eventId}",
+                    "/habit/comments/{habitId}",
                     "/events/search",
                     "/events/search/suggestions",
                     "/friends/count")
@@ -229,6 +230,7 @@ public class SecurityConfig {
                     "/custom/shopping-list-items/{userId}/{habitId}/custom-shopping-list-items",
                     "/events",
                     "/events/comments/{eventId}",
+                    "/habit/comments/{habitId}",
                     "/events/likes/{eventId}")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PUT,
@@ -258,6 +260,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE,
                     ECONEWS_COMMENTS,
                     "/events/comments/{eventCommentId}",
+                    "/habit/comments/{habitCommentId}",
                     "/events/likes/{eventId}",
                     EVENT_ID,
                     "/econews/{econewsId}",
