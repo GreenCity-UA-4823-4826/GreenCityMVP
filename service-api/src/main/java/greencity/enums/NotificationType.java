@@ -6,5 +6,6 @@ public enum NotificationType {
     EVENT_LIKE,
     HABIT_LIKE,
     HABIT_COMMENT,
-    EVENT_EDITED
+    EVENT_EDITED,
+    HABIT_INVITE
 }
