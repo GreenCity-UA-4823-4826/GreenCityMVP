@@ -139,6 +139,10 @@ public final class ErrorMessage {
     public static final String INVALID_IMAGE_TYPE = "Invalid image type. Only JPEG and PNG are allowed.";
     public static final String EVENT_NOT_FOUND_BY_ID = "The event does not exist by this id: ";
     public static final String NOTIFICATION_NOT_FOUND_BY_ID = "Notification not found by id: ";
+    public static final String CANNOT_INVITE_YOURSELF = "User cannot invite themselves to a habit";
+    public static final String HABIT_INVITE_NOT_FOUND_BY_ID = "Habit invite does not exist by this id: ";
+    public static final String HABIT_INVITE_ALREADY_HANDLED = "This habit invite has already been handled";
+    public static final String INVITEE_ALREADY_HAS_HABIT_ASSIGNED = "This user has already added this habit";
 
     private ErrorMessage() {
     }
