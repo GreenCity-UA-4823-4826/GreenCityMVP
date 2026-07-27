@@ -5,7 +5,6 @@ import greencity.enums.event.EventAttendanceStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +17,6 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class EventAttendance {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
