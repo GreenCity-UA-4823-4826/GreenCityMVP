@@ -201,7 +201,6 @@ public class SecurityConfig {
                     "/habit/{habitId}/friends/profile-pictures",
                     "/events/myEvents",
                     "/events/comments/{eventId}",
-                    "/habit/invites/sent",
                     "/friends/count")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
@@ -228,11 +227,7 @@ public class SecurityConfig {
                     "/events",
                     "/events/comments/{eventId}",
                     "/events/likes/{eventId}",
-                    "/habit/likes/{habitId}",
-                    "/habit/invites/{habitId}",
-                    "/habit/invites/{inviteId}/cancel",
-                    "/habit/invites/{inviteId}/accept",
-                    "/habit/invites/{inviteId}/decline")
+                    "/habit/likes/{habitId}")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PUT,
                     "/habit/statistic/{id}",
