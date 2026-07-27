@@ -167,4 +167,17 @@ class NotificationControllerTest {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
+
+    @Test
+    void countUnreadNotifications_ValidRequest_ReturnsOk() throws Exception {
+        when(userService.findByEmail(anyString())).thenReturn(userVO);
+        when(userNotificationService.countUnreadNotifications(1L)).thenReturn(4L);
+
+        mockMvc.perform(get(notificationLink + "/count")
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        verify(userNotificationService).countUnreadNotifications(1L);
+    }
 }

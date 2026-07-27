@@ -103,4 +103,15 @@ public class NotificationController {
     public void notificationSocket(@Payload ActionDto user) {
         userNotificationService.notificationSocket(user);
     }
+
+    @Operation(summary = "Get count of current user's unread notifications.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = HttpStatuses.OK),
+        @ApiResponse(responseCode = "401", description = HttpStatuses.UNAUTHORIZED)
+    })
+    @GetMapping("/count")
+    public ResponseEntity<Long> countUnreadNotifications(
+        @Parameter(hidden = true) @CurrentUserId Long userId) {
+        return ResponseEntity.ok(userNotificationService.countUnreadNotifications(userId));
+    }
 }

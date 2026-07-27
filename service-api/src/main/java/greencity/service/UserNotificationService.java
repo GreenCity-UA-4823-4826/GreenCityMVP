@@ -18,9 +18,13 @@ public interface UserNotificationService {
     void createNotification(UserVO targetUser, UserVO actionUser, NotificationType notificationType,
         Long targetId, String secondMessageText);
 
+    void removeActionUser(UserVO targetUser, UserVO actionUser, NotificationType notificationType, Long targetId);
+
     void deleteNotification(Long userId, Long notificationId);
 
     void unreadNotification(Long userId, Long notificationId);
 
     void viewNotification(Long userId, Long notificationId);
+
+    long countUnreadNotifications(Long userId);
 }

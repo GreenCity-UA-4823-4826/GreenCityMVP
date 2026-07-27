@@ -46,6 +46,7 @@ public class SecurityConfig {
     private static final String CUSTOM_SHOPPING_LIST_ITEMS = "/{userId}/custom-shopping-list-items";
     private static final String HABIT_ASSIGN_ID = "/habit/assign/{habitId}";
     private static final String USER_SHOPPING_LIST = "/user/shopping-list-items";
+    private static final String EVENT_ID = "/events/{eventId}";
     private final JwtTool jwtTool;
     private final UserService userService;
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -200,6 +201,11 @@ public class SecurityConfig {
                     "/habit/search",
                     "/habit/{habitId}/friends/profile-pictures",
                     "/events/myEvents",
+                    "/events/comments/{eventId}",
+                    "/habit/comments/{habitId}",
+                    "/events/search",
+                    "/events/search/suggestions",
+                    "/habit/invites/sent",
                     "/friends/count")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.POST,
@@ -223,7 +229,15 @@ public class SecurityConfig {
                     "/user/{userId}/habit",
                     "/habit/custom",
                     "/custom/shopping-list-items/{userId}/{habitId}/custom-shopping-list-items",
-                    "/events")
+                    "/events",
+                    "/events/comments/{eventId}",
+                    "/events/likes/{eventId}",
+                    "/habit/likes/{habitId}",
+                    "/habit/comments/{habitId}",
+                    "/habit/invites/{habitId}",
+                    "/habit/invites/{inviteId}/cancel",
+                    "/habit/invites/{inviteId}/accept",
+                    "/habit/invites/{inviteId}/decline")
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PUT,
                     "/habit/statistic/{id}",
@@ -232,7 +246,8 @@ public class SecurityConfig {
                     "/user/profile",
                     HABIT_ASSIGN_ID + "/update-habit-duration",
                     "/habit/assign/{habitAssignId}/updateProgressNotificationHasDisplayed",
-                    HABIT_ASSIGN_ID + "/allUserAndCustomList")
+                    HABIT_ASSIGN_ID + "/allUserAndCustomList",
+                    EVENT_ID)
                 .hasAnyRole(USER, ADMIN, MODERATOR, UBS_EMPLOYEE)
                 .requestMatchers(HttpMethod.PATCH,
                     ECONEWS_COMMENTS,
@@ -251,7 +266,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE,
                     ECONEWS_COMMENTS,
                     "/events/comments/{eventCommentId}",
-                    "/events/{eventId}",
+                    "/habit/comments/{habitCommentId}",
+                    "/events/likes/{eventId}",
+                    "/habit/likes/{habitId}",
+                    EVENT_ID,
                     "/econews/{econewsId}",
                     NOTIFICATIONS + "/{notificationId}",
                     CUSTOM_SHOPPING_LIST_ITEMS,

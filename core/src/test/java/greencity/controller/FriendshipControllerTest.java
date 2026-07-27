@@ -52,11 +52,11 @@ class FriendshipControllerTest {
     @BeforeEach
     void setUp() {
         this.mockMvc = MockMvcBuilders
-                .standaloneSetup(friendshipController)
-                .setCustomArgumentResolvers(
-                        new UserArgumentResolver(userService, modelMapper))
-                .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
-                .build();
+            .standaloneSetup(friendshipController)
+            .setCustomArgumentResolvers(
+                new UserArgumentResolver(userService, modelMapper))
+            .setControllerAdvice(new CustomExceptionHandler(errorAttributes, objectMapper))
+            .build();
     }
 
     @Test
@@ -66,10 +66,10 @@ class FriendshipControllerTest {
         when(friendshipService.countOfUserFriends(any())).thenReturn(5L);
 
         mockMvc.perform(get(FRIENDS_LINK + "/count")
-                        .principal(principal)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string("5"));
+            .principal(principal)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string("5"));
 
         verify(friendshipService, times(1)).countOfUserFriends(any());
     }
