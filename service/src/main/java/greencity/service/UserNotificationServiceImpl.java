@@ -90,21 +90,26 @@ public class UserNotificationServiceImpl implements UserNotificationService {
     }
 
     @Override
-    public void unreadNotification(Long notificationId) {
-        Notification notification = notificationRepo.findById(notificationId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
-        Long userId = notification.getTargetUser().getId();
-        notificationRepo.markNotificationAsNotViewed(notificationId);
+    public void unreadNotification(Long userId, Long notificationId) {
+        int updated = notificationRepo.markNotificationAsNotViewedByIdAndTargetUserId(notificationId, userId);
+        if (updated == 0) {
+            throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
+        }
         sendNotificationCount(userId);
     }
 
     @Override
-    public void viewNotification(Long notificationId) {
-        Notification notification = notificationRepo.findById(notificationId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId));
-        Long userId = notification.getTargetUser().getId();
-        notificationRepo.markNotificationAsViewed(notificationId);
+    public void viewNotification(Long userId, Long notificationId) {
+        int updated = notificationRepo.markNotificationAsViewedByIdAndTargetUserId(notificationId, userId);
+        if (updated == 0) {
+            throw new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND_BY_ID + notificationId);
+        }
         sendNotificationCount(userId);
+    }
+
+    @Override
+    public long countUnreadNotifications(Long userId) {
+        return notificationRepo.countByTargetUserIdAndViewedIsFalse(userId);
     }
 
     private PageableAdvancedDto<NotificationDto> buildPageableAdvancedDto(Page<Notification> notifications,

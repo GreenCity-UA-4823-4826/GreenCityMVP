@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class FriendshipServiceImpl implements FriendshipService{
+public class FriendshipServiceImpl implements FriendshipService {
     private final FriendshipRepo friendshipRepo;
 
     @Override

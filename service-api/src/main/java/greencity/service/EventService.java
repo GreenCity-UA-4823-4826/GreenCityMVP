@@ -9,8 +9,8 @@ import greencity.dto.event.EventPreviewResponseDto;
 import greencity.dto.event.EventSearchSuggestionResponseDto;
 import greencity.dto.user.UserVO;
 import org.springframework.data.domain.Page;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
